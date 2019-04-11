@@ -11,7 +11,7 @@ import pygame
 
 class PygameGame(object):
     def init(self):
-        pygame.surface(self.width, self.height)
+        pass
 
     def mousePressed(self, x, y):
         pass
@@ -46,7 +46,7 @@ class PygameGame(object):
         self.height = height
         self.fps = fps
         self.title = title
-        self.bgColor = (255, 255, 255)
+        self.bgColor = (0, 255, 0)
         pygame.init()
 
     def run(self):
