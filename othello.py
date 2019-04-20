@@ -19,12 +19,16 @@ def init(data):
     SOUTHEAST = (+1, +1)
     SOUTHWEST = (-1, +1)
     NORTHWEST = (-1, -1)
-    data.directions = [NORTH, SOUTH, EAST, WEST, NORTHEAST, SOUTHEAST, SOUTHWEST, NORTHWEST]
+    data.directions = [NORTH, SOUTH, EAST, WEST]
     
 def drawBoard(canvas, data):
     for row in range(data.rows):
         for col in range(data.cols):
             cell = drawCell(canvas, data, row, col)
+            if data.board[row][col] == None:
+                continue
+            else:
+                chip = drawChip(canvas, data, row, col)
 
 def drawCell(canvas, data, row, col):
     x0 = data.margin + col * data.cellSize
@@ -86,34 +90,38 @@ def drawScore(canvas, data):
                        text="x " + str(data.numWhite))
 
 def isLegalMove(data, row, col):
-    legalMoves = []
     for direction in data.directions:
-        # check if it's out of bounds
-        if ((0 <= row + direction[0] < data.rows) or (0 <= col + direction[1] < data.cols)):
+        # check if it's not out of bounds
+        if not ((0 <= row < data.rows) or (0 <= col < data.cols)):
+            print(direction,1)
             return False
-        # check if it's empty space
-        elif data.board[row+direction[0]][col+direction[1]] == None:
+        # check if it's not occupied space
+        elif data.board[row][col] != None:
+            print(direction,2)
             return False 
-        # check if it's same color piece
-        elif data.board[row][col] == data.board[row+direction[0]][col+direction[1]]:
+        # check if there's no same color piece to the immediate up/down/left/right
+        elif data.board[row+direction[0]][col+direction[1]] == "black" and data.board[row+direction[0]][col+direction[1]] != None:
+            print(direction,3)
             return False
         # check if it's different color piece and if so, proceed to check if legal move
-        else:
-            if data.board[row+direction[0]*2][col+direction[1]*2] == None:
-                legalMoves.append((row+direction[0]*2, col+direction[1]*2))
-                return True
-            else:
-                return False
+        elif ((data.board[row+direction[0]][col+direction[1]] != "black" and data.board[row+direction[0]][col+direction[1]] != None)):
+            return True 
             
+def getCell(x,y, data):
+    row = (x-data.margin)//data.cellSize
+    col = (y-data.margin)//data.cellSize
+    return (row, col)
 
 def mousePressed(event, data):
-    pass
-
-def keyPressed(event, data):
-    currRow = (event.x-data.margin)//data.cols
-    currCol = (event.y-data.margin)//data.rows
+    (currRow, currCol) = getCell(event.y, event.x, data)
+    print(currRow, currCol)
     if isLegalMove(data, currRow, currCol):
-        drawChip()
+        print("5")
+        data.board[currRow][currCol] = "black" # will eventually be what the user's color is
+        print(data.board)
+        
+def keyPressed(event, data):
+    pass
 
 def timerFired(data):
     pass
@@ -125,6 +133,7 @@ def redrawAll(canvas, data):
     
     drawStartingChips(canvas, data)
     drawScore(canvas, data) 
+ 
 
 ####################################
 # use the run function as-is

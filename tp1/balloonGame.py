@@ -13,21 +13,17 @@ def init(data):
     data.mode = "homeScreen"
     data.currTotal = 0
     data.runningTotal = 0
-    data.clicks = 0
-    data.clickList = []
-    data.tolerance = []
-    for i in range(30):
-        tolerance = random.randint(1,32)
-        data.tolerance.append(tolerance)
+    data.balloon = Balloon(data.width/2, data.height*0.4, 0, 0, 10, 25, 0, [], [])
+    data.clicks = data.balloon.clicks
+    data.clickList = data.balloon.clickList
+    data.tolerance = data.balloon.tolerances    
+    data.cx = data.balloon.cx
+    data.cy = data.balloon.cy
+    data.hRadius = data.balloon.hRadius
+    data.vRadius = data.balloon.vRadius
+    data.hPlus = data.balloon.hPlus
+    data.vPlus = data.balloon.vPlus
     
-    data.isPopped = False
-    data.cx = data.width/2
-    data.cy = data.height*0.4
-    data.hPlus = 0
-    data.vPlus = 0
-    data.balloons = []
-    
-
 ####################################
 # mode dispatcher
 ####################################
@@ -117,26 +113,60 @@ def helpRedrawAll(canvas, data):
 # ask about (similar to the sequential question), how to loop through balloons until hit 30 balloons
 # also how to 'embed' a 'results' screen and/or popup between each
 
+class Balloon(object):
+    def __init__(self, cx, cy, hRadius, vRadius, hPlus, vPlus, clicks, clickList, tolerances):
+        self.cx = cx
+        self.cy = cy
+        self.hRadius = hRadius
+        self.vRadius = vRadius
+        self.hPlus = hPlus
+        self.vPlus = vPlus
+        self.clicks = clicks
+        self.clickList = clickList
+        self.tolerances = tolerances
+        for i in range(30):
+            tolerance = random.randint(1,32)
+            self.tolerances.append(tolerance)
+    
+    def drawBalloon(self, canvas):
+        canvas.create_oval(self.cx-self.hRadius,self.cy-self.vRadius,
+                           self.cx+self.hRadius,self.cy+self.vRadius,
+                           fill="red")
+    
+    def drawPoppedBalloon():
+        canvas.create_text(self.cx,self.cy,"POPPED")
+    
+    def grow(self, x, y, buttonX1, buttonX2, buttonY1, buttonY2):
+        self.buttonX1 = buttonX1
+        self.buttonX2 = buttonX2
+        self.buttonY1 = buttonY1
+        self.buttonY2 = buttonY2
+        if ((self.buttonX1 <= x <= self.buttonX2) and 
+            (self.buttonY1 <= y <= self.buttonY2)):
+            self.hRadius += self.hPlus
+            self.vRadius += self.vPlus
+            self.clicks += 1
+    
+    def isPopped(self, popIndex):
+        self.popIndex = popIndex
+        return self.clicks > self.popIndex
+    
+    def popBalloon(self):
+        self.drawPoppedBalloon()
+                 
+    
+
 def playGameMousePressed(event, data):
-    index = 0
-    while index < len(data.tolerance):
-        if ((data.width*0.075 <= event.x <= data.width*0.325) and 
-            (data.height*0.79 <= event.y <= data.height*0.91)):
-            data.runningTotal += data.currTotal
-        
-        if data.clicks <= data.tolerance[index]:
-            if ((data.width*0.375 <= event.x <= data.width*0.625) and 
-                (data.height*0.79 <= event.y <= data.height*0.91)):
-                data.hPlus += 10
-                data.vPlus += 25
-                data.clicks += 1
-        else:
-            data.isPopped = not data.isPopped
-            data.clickList.append(data.clicks)
-            data.balloons.append((data.hPlus, data.vPlus))
-            data.clicks = data.hPlus = data.vPlus = 0
-            data.isPopped = not data.isPopped
-        index += 1
+    if ((data.width*0.075 <= event.x <= data.width*0.325) and 
+        (data.height*0.79 <= event.y <= data.height*0.91)):
+        data.runningTotal += data.currTotal
+
+    for tolerance in data.tolerance:
+        data.balloon.grow(event.x, event.y, data.width*0.375, data.width*0.625, data.height*0.79, data.height*0.91)
+        if data.balloon.isPopped(tolerance):
+            data.balloon.clickList.append(data.clicks)
+            data.balloon = Balloon(data.width/2, data.height*0.4, 0, 0, 10, 25, 0, [], [])
+
         
 def playGameKeyPressed(event, data):
     if (event.keysym == 'h'):
@@ -169,12 +199,9 @@ def playGameRedrawAll(canvas, data):
                        text="Cumulative Earnings:" + str(data.runningTotal),
                        anchor="sw")
     # draw balloon
-    if data.isPopped == False:
-        canvas.create_oval(data.cx-data.hPlus,data.cy-data.vPlus,
-                            data.cx+data.hPlus,data.cy+data.vPlus,
-                            fill="red", outline="black")
-    else:
-        pass
+    data.balloon.drawBalloon(canvas)
+    # where to draw popped balloon?
+    # data.balloon.popBalloon()
 
 ####################################
 # use the run function as-is
