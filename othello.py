@@ -92,6 +92,9 @@ def drawScore(canvas, data):
                        text="x " + str(data.numWhite))
 
 def isLegalMove(data, row, col):
+    if data.player == "black": other = "white"
+    elif data.player == "white": other = "black"
+    
     for direction in data.directions:
         # check if it's not out of bounds
         if not ((0 <= row < data.rows) or (0 <= col < data.cols)):
@@ -100,10 +103,10 @@ def isLegalMove(data, row, col):
         elif data.board[row][col] != None:
             return False 
         # check if there's no same color piece to the immediate up/down/left/right
-        elif data.board[row+direction[0]][col+direction[1]] == "black" and data.board[row+direction[0]][col+direction[1]] != None:
+        elif data.board[row+direction[0]][col+direction[1]] == data.player and data.board[row+direction[0]][col+direction[1]] != None:
             return False
         # check if it's different color piece and if so, proceed to check if legal move
-        elif ((data.board[row+direction[0]][col+direction[1]] == "white")):
+        elif ((data.board[row+direction[0]][col+direction[1]] == other)):
             return True 
             
 def getCell(x,y, data):
@@ -124,10 +127,11 @@ def ripple(data, row, col):
             data.otherLst.append((row+direction[0], col+direction[1]))
             increment = 2
             while data.board[row+direction[0]*increment][col+direction[1]*increment] == other:
-                data.whiteLst.append((row+direction[0]*increment, col+direction[1]*increment))
+                data.otherLst.append((row+direction[0]*increment, col+direction[1]*increment))
                 increment += 1
             if data.board[row+direction[0]*increment][col+direction[1]*increment] == data.player:
                 flip(data)
+            data.otherLst = []
 
 def play(data, a, b):
     (currRow, currCol) = getCell(a, b, data)
@@ -137,9 +141,10 @@ def play(data, a, b):
 
 def mousePressed(event, data):
     play(data, event.y, event.x)
-    
+    print("before color: ", data.player)
     if data.player == "black": data.player = "white"
     elif data.player == "white": data.player = "black"
+    print("after color: ", data.player)
         
 def keyPressed(event, data):
     pass
