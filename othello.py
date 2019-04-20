@@ -20,6 +20,8 @@ def init(data):
     SOUTHWEST = (-1, +1)
     NORTHWEST = (-1, -1)
     data.directions = [NORTH, SOUTH, EAST, WEST]
+    data.otherLst = []
+    data.player = "black"
     
 def drawBoard(canvas, data):
     for row in range(data.rows):
@@ -93,15 +95,12 @@ def isLegalMove(data, row, col):
     for direction in data.directions:
         # check if it's not out of bounds
         if not ((0 <= row < data.rows) or (0 <= col < data.cols)):
-            print(direction,1)
             return False
         # check if it's not occupied space
         elif data.board[row][col] != None:
-            print(direction,2)
             return False 
         # check if there's no same color piece to the immediate up/down/left/right
         elif data.board[row+direction[0]][col+direction[1]] == "black" and data.board[row+direction[0]][col+direction[1]] != None:
-            print(direction,3)
             return False
         # check if it's different color piece and if so, proceed to check if legal move
         elif ((data.board[row+direction[0]][col+direction[1]] == "white")):
@@ -112,24 +111,35 @@ def getCell(x,y, data):
     col = (y-data.margin)//data.cellSize
     return (row, col)
 
-def flipChip(data, row, col):
+def flip(data):
+    for other in data.otherLst:
+        data.board[other[0]][other[1]] = data.player
+
+def ripple(data, row, col):
+    if data.player == "black": other = "white"
+    elif data.player == "white": other = "black"
+    
     for direction in data.directions:
-        print("entered flip loop")
-        if data.board[row+direction[0]][col+direction[1]] == "white":
-            print("a")
+        if data.board[row+direction[0]][col+direction[1]] == other:
+            data.otherLst.append((row+direction[0], col+direction[1]))
             increment = 2
-            while data.board[row+direction[0]*increment][col+direction[1]*increment] == "white":
-                data.board[row+direction[0]*(increment-1)][col+direction[1]*(increment-1)] == "black"
+            while data.board[row+direction[0]*increment][col+direction[1]*increment] == other:
+                data.whiteLst.append((row+direction[0]*increment, col+direction[1]*increment))
                 increment += 1
+            if data.board[row+direction[0]*increment][col+direction[1]*increment] == data.player:
+                flip(data)
+
+def play(data, a, b):
+    (currRow, currCol) = getCell(a, b, data)
+    if isLegalMove(data, currRow, currCol):
+        data.board[currRow][currCol] = data.player
+        ripple(data, currRow, currCol)
 
 def mousePressed(event, data):
-    (currRow, currCol) = getCell(event.y, event.x, data)
-    print(currRow, currCol)
-    if isLegalMove(data, currRow, currCol):
-        print("5")
-        data.board[currRow][currCol] = "black" # will eventually be what the user's color is
-        flipChip(data, currRow, currCol)
-        print(data.board)
+    play(data, event.y, event.x)
+    
+    if data.player == "black": data.player = "white"
+    elif data.player == "white": data.player = "black"
         
 def keyPressed(event, data):
     pass
