@@ -104,7 +104,7 @@ def isLegalMove(data, row, col):
             print(direction,3)
             return False
         # check if it's different color piece and if so, proceed to check if legal move
-        elif ((data.board[row+direction[0]][col+direction[1]] != "black" and data.board[row+direction[0]][col+direction[1]] != None)):
+        elif ((data.board[row+direction[0]][col+direction[1]] == "white")):
             return True 
             
 def getCell(x,y, data):
@@ -112,12 +112,23 @@ def getCell(x,y, data):
     col = (y-data.margin)//data.cellSize
     return (row, col)
 
+def flipChip(data, row, col):
+    for direction in data.directions:
+        print("entered flip loop")
+        if data.board[row+direction[0]][col+direction[1]] == "white":
+            print("a")
+            increment = 2
+            while data.board[row+direction[0]*increment][col+direction[1]*increment] == "white":
+                data.board[row+direction[0]*(increment-1)][col+direction[1]*(increment-1)] == "black"
+                increment += 1
+
 def mousePressed(event, data):
     (currRow, currCol) = getCell(event.y, event.x, data)
     print(currRow, currCol)
     if isLegalMove(data, currRow, currCol):
         print("5")
         data.board[currRow][currCol] = "black" # will eventually be what the user's color is
+        flipChip(data, currRow, currCol)
         print(data.board)
         
 def keyPressed(event, data):

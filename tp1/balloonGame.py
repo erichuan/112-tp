@@ -162,8 +162,9 @@ def playGameMousePressed(event, data):
         data.runningTotal += data.currTotal
 
     for tolerance in data.tolerance:
-        data.balloon.grow(event.x, event.y, data.width*0.375, data.width*0.625, data.height*0.79, data.height*0.91)
-        if data.balloon.isPopped(tolerance):
+        if not data.balloon.isPopped(tolerance):
+            data.balloon.grow(event.x, event.y, data.width*0.375, data.width*0.625, data.height*0.79, data.height*0.91)
+        else:
             data.balloon.clickList.append(data.clicks)
             data.balloon = Balloon(data.width/2, data.height*0.4, 0, 0, 10, 25, 0, [], [])
 
