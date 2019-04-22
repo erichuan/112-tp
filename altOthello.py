@@ -22,6 +22,7 @@ def init(data):
     data.directions = [NORTH, SOUTH, EAST, WEST, NORTHEAST, SOUTHEAST, SOUTHWEST, NORTHWEST]
     data.otherLst = []
     data.player = "black"
+    data.legalMoves = []
     
 def drawBoard(canvas, data):
     for row in range(data.rows):
@@ -105,7 +106,7 @@ def isLegalMove(data, row, col):
         # check if the immediate up/down/left/right/NE/SE/SW/NW not out of bounds
         elif not ((0 <= row+direction[0] < data.rows) or (0 <= col+direction[1] < data.cols)):
             return False
-        # check if there's no same color piece to the immediate up/down/left/right
+        # check if there's no same color piece to the immediate up/down/left/right/NE/SE/SW/NW
         elif data.board[row+direction[0]][col+direction[1]] == data.player and data.board[row+direction[0]][col+direction[1]] != None:
             return False
         # check if it's different color piece and if so, proceed to check if legal move
@@ -135,18 +136,50 @@ def ripple(data, row, col):
             if data.board[row+direction[0]*increment][col+direction[1]*increment] == data.player:
                 flip(data)
             data.otherLst = []
-
-def play(data, a, b):
+    
+## updated makeMove function
+def makeMove(data, a, b):
     (currRow, currCol) = getCell(a, b, data)
-    if isLegalMove(data, currRow, currCol):
+    move = (currRow, currCol)
+    
+    if move in data.legalMoves:
         data.board[currRow][currCol] = data.player
         ripple(data, currRow, currCol)
+        print(data.board)
         
-    if data.player == "black": data.player = "white"
-    elif data.player == "white": data.player = "black"
+        if data.player == "black": data.player = "white"
+        elif data.player == "white": data.player = "black"
+
+## things to do to get towards implementing game AI
+def getLegalMoves(data):
+    for row in range(data.rows):
+        for col in range(data.cols):
+            if isLegalMove(data, row, col):
+                data.legalMoves.append((row, col))
+
+def gameOver(data):
+    # if entire board filled
+    fillCount = 0
+    for row in data.rows:
+        for col in data.cols:
+            if data.board[row][col] != None:
+                fillCount += 1
+    if fillCount == 64:
+        return True
+    
+    # if both players can't make moves (no legal moves)
+    
+
+
+
+
+
+
+##
 
 def mousePressed(event, data):
-    play(data, event.y, event.x)
+    getLegalMoves(data)
+    makeMove(data, event.y, event.x)
         
 def keyPressed(event, data):
     pass
