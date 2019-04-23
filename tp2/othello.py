@@ -193,7 +193,6 @@ def gameOver(data):
 
 def mousePressed(event, data):
     getLegalMoves(data)
-    print(data.legalMoves)
     makeMove(data, event.y, event.x)
         
 def keyPressed(event, data):

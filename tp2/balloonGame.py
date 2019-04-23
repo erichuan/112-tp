@@ -173,6 +173,7 @@ def playGameMousePressed(event, data):
     
     else:
         data.clickList.append(data.clicks)
+        data.balloon.runningTotal += data.balloon.currTotal
         data.balloon.currTotal = 0
         data.balloon = Balloon(data.width/2, data.height*0.4, 0, 0, 5, 5, 0, [], [], 
                                data.width*0.075, data.width*0.325, data.height*0.79, data.height*0.91)
