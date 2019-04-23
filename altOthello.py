@@ -19,7 +19,8 @@ def init(data):
     SOUTHEAST = (+1, +1)
     SOUTHWEST = (-1, +1)
     NORTHWEST = (-1, -1)
-    data.directions = [NORTH, SOUTH, EAST, WEST, NORTHEAST, SOUTHEAST, SOUTHWEST, NORTHWEST]
+    data.directions = [NORTH, SOUTH, EAST, WEST]
+    data.diagonals = [NORTHEAST, SOUTHEAST, SOUTHWEST, NORTHWEST]
     data.otherLst = []
     data.player = "black"
     data.legalMoves = []
@@ -98,19 +99,19 @@ def isLegalMove(data, row, col):
     
     for direction in data.directions:
         # check if it's not out of bounds
-        if not ((0 <= row < data.rows) or (0 <= col < data.cols)):
+        if ((0 > row) or (row >= data.rows) or (0 > col) or (col >= data.cols)):
             return False
         # check if it's not occupied space
         elif data.board[row][col] != None:
             return False 
         # check if the immediate up/down/left/right/NE/SE/SW/NW not out of bounds
-        elif not ((0 <= row+direction[0] < data.rows) or (0 <= col+direction[1] < data.cols)):
+        elif ((0 > row+direction[0]) or (row+direction[0] >= data.rows) or (0 > col+direction[1]) or (col+direction[1] >= data.cols)):
             return False
         # check if there's no same color piece to the immediate up/down/left/right/NE/SE/SW/NW
-        elif data.board[row+direction[0]][col+direction[1]] == data.player and data.board[row+direction[0]][col+direction[1]] != None:
+        elif data.board[row+direction[0]][col+direction[1]] == data.player:
             return False
         # check if it's different color piece and if so, proceed to check if legal move
-        elif ((data.board[row+direction[0]][col+direction[1]] == other)):
+        elif (data.board[row+direction[0]][col+direction[1]] == other):
             return True 
             
 def getCell(x,y, data):
@@ -137,18 +138,31 @@ def ripple(data, row, col):
                 flip(data)
             data.otherLst = []
     
-## updated makeMove function
-def makeMove(data, a, b):
+    for diagonal in data.diagonals:
+        if data.board[row+diagonal[0]][col+diagonal[1]] == other:
+            data.otherLst.append((row+diagonal[0], col+diagonal[1]))
+            increment = 2
+            while data.board[row+diagonal[0]*increment][col+diagonal[1]*increment] == other:
+                data.otherLst.append((row+diagonal[0]*increment, col+diagonal[1]*increment))
+                increment += 1
+            if data.board[row+diagonal[0]*increment][col+diagonal[1]*increment] == data.player:
+                flip(data)
+            data.otherLst = []
+
+def getMove(data, a, b):
     (currRow, currCol) = getCell(a, b, data)
-    move = (currRow, currCol)
-    
-    if move in data.legalMoves:
-        data.board[currRow][currCol] = data.player
-        ripple(data, currRow, currCol)
-        print(data.board)
-        
-        if data.player == "black": data.player = "white"
-        elif data.player == "white": data.player = "black"
+    return (currRow, currCol)
+
+def makeMove(data, move):
+    while not gameOver(data):
+        if move in data.legalMoves:
+            data.board[move[0]][move[1]] = data.player
+            ripple(data, move[0], move[1])
+            
+            if data.player == "black": data.player = "white"
+            elif data.player == "white": data.player = "black"
+            
+        data.legalMoves = []
 
 ## things to do to get towards implementing game AI
 def getLegalMoves(data):
@@ -157,29 +171,38 @@ def getLegalMoves(data):
             if isLegalMove(data, row, col):
                 data.legalMoves.append((row, col))
 
+def getAIMove(data):
+    getLegalMoves(data)
+    print(data.legalMoves)
+    move = random.choice(data.legalMoves) # implementing random strategy to start out with first
+    makeMove(data, move)
+
 def gameOver(data):
     # if entire board filled
     fillCount = 0
-    for row in data.rows:
-        for col in data.cols:
+    for row in range(data.rows):
+        for col in range(data.cols):
             if data.board[row][col] != None:
                 fillCount += 1
     if fillCount == 64:
         return True
     
     # if both players can't make moves (no legal moves)
-    
+    if ((data.legalMoves == [] and data.player == "black") and 
+        (data.legalMoves == [] and data.player == "white")):
+        return True
 
-
-
-
-
-
+def drawGameOverMessage(data):
+    canvas.create_text(data.height/2, data.height/2, "Game Over")
 ##
-
 def mousePressed(event, data):
-    getLegalMoves(data)
-    makeMove(data, event.y, event.x)
+    if data.player == "black":
+        getLegalMoves(data)
+        print(data.legalMoves)
+        move = getMove(data, event.y, event.x)
+        makeMove(data, move)
+    else:
+        getAIMove(data)
         
 def keyPressed(event, data):
     pass
@@ -194,7 +217,9 @@ def redrawAll(canvas, data):
     
     drawStartingChips(canvas, data)
     drawScore(canvas, data) 
- 
+    
+    if gameOver(data):
+        drawGameOverMessage(data)
 
 ####################################
 # use the run function as-is
