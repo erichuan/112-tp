@@ -105,13 +105,24 @@ def isLegalMove(data, row, col):
         elif data.board[row][col] != None:
             return False 
         # check if the immediate up/down/left/right/NE/SE/SW/NW not out of bounds
-        elif ((0 > row+direction[0]) or (row+direction[0] >= data.rows) or (0 > col+direction[1]) or (col+direction[1] >= data.cols)):
+        if ((0 > row+direction[0]) or (row+direction[0] >= data.rows) or (0 > col+direction[1]) or (col+direction[1] >= data.cols)):
             return False
         # check if there's no same color piece to the immediate up/down/left/right/NE/SE/SW/NW
         elif data.board[row+direction[0]][col+direction[1]] == data.player:
             return False
         # check if it's different color piece and if so, proceed to check if legal move
         elif (data.board[row+direction[0]][col+direction[1]] == other):
+            return True 
+    
+    for diagonal in data.diagonals:
+        # check if the immediate NE/SE/SW/NW not out of bounds
+        if ((0 > row+diagonal[0]) or (row+diagonal[0] >= data.rows) or (0 > col+diagonal[1]) or (col+diagonal[1] >= data.cols)):
+            return False
+        # check if there's no same color piece to the immediate NE/SE/SW/NW
+        elif data.board[row+diagonal[0]][col+diagonal[1]] == data.player:
+            return False
+        # check if it's different color piece and if so, proceed to check if legal move
+        elif (data.board[row+diagonal[0]][col+diagonal[1]] == other):
             return True 
             
 def getCell(x,y, data):
