@@ -1,3 +1,6 @@
+'''
+General animation framework taken from 112 course notes
+'''
 from tkinter import *
 import random
 
@@ -100,22 +103,26 @@ def isValidMove(data, row, col):
     elif data.player == "white": other = "black"
     
     for direction in data.directions:
-        # check if the immediate up/down/left/right is in bounds
-        if ((0 <= row+direction[0]) or (row+direction[0] < data.rows) or (0 <= col+direction[1]) or (col+direction[1] < data.cols)):
-            # check if the immediate up/down/left/right is opposite color
-            if data.board[row+direction[0]][col+direction[1]] == other:
-                return True
-        else:
+        # check if the immediate up/down/left/right is in bound
+        if ((0 > row+direction[0]) or (row+direction[0] >= data.rows) or (0 > col+direction[1]) or (col+direction[1] >= data.cols)):
             return False
+        # check if the immediate up/down/left/right is empty
+        elif data.board[row+direction[0]][col+direction[1]] == None:
+            return False
+        # check if the immediate up/down/left/right is opposite color
+        elif data.board[row+direction[0]][col+direction[1]] == other:
+            return True
     
     for diagonal in data.diagonals:
-        # check if the immediate NE/SE/SW/NW is in bounds
-        if ((0 <= row+diagonal[0]) or (row+diagonal[0] < data.rows) or (0 <= col+diagonal[1]) or (col+diagonal[1] < data.cols)):
-            # check if the immediate NE/SE/SW/NW is opposite color
-            if data.board[row+diagonal[0]][col+diagonal[1]] == other:
-                return True
-        else:
+        # check if the immediate NE/SE/SW/NW is in bound
+        if ((0 > row+diagonal[0]) or (row+diagonal[0] >= data.rows) or (0 > col+diagonal[1]) or (col+diagonal[1] >= data.cols)):
             return False
+        # check if the immediate NE/SE/SW/NW is empty
+        elif data.board[row+diagonal[0]][col+diagonal[1]] == None:
+            return False
+        # check if the immediate NE/SE/SW/NW is opposite color
+        elif data.board[row+diagonal[0]][col+diagonal[1]] == other:
+            return True
     
 def checkLegalMove(data, row, col):
     if data.player == "black": other = "white"
@@ -235,6 +242,7 @@ def getAIMove(data):
     getLegalMoves(data)
     print(data.legalMoves)
     move = random.choice(data.legalMoves) # implementing random strategy to start out with first
+    return move
 
 def gameOver(data):
     # if entire board filled
@@ -253,7 +261,7 @@ def gameOver(data):
 
 def drawGameOverMessage(canvas, data):
     canvas.create_text(data.height/2, data.height/2, "Game Over")
-##
+
 def mousePressed(event, data):
     if data.player == "black":
         getLegalMoves(data)
@@ -261,7 +269,7 @@ def mousePressed(event, data):
         move = getMove(data, event.y, event.x)
         makeMove(data, move)
     else:
-        getAIMove(data)
+        move = getAIMove(data)
         makeMove(data, move)
     
 def keyPressed(event, data):

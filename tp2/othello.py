@@ -1,3 +1,6 @@
+'''
+General animation framework taken from 112 course notes
+'''
 from tkinter import *
 import random
 
