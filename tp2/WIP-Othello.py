@@ -16,19 +16,20 @@ def init(data):
     data.numWhite = 0
     data.blackChips = []
     data.whiteChips = []
-    NORTH = (0, -1)
-    SOUTH = (0, +1)
-    EAST = (+1, 0)
-    WEST = (-1, 0)
-    NORTHEAST = (+1, -1)
+    NORTH = (-1, 0)
+    SOUTH = (+1, 0)
+    EAST = (0, +1)
+    WEST = (0, -1)
+    NORTHEAST = (-1, +1)
     SOUTHEAST = (+1, +1)
-    SOUTHWEST = (-1, +1)
+    SOUTHWEST = (+1, -1)
     NORTHWEST = (-1, -1)
     data.directions = [NORTH, SOUTH, EAST, WEST]
     data.diagonals = [NORTHEAST, SOUTHEAST, SOUTHWEST, NORTHWEST]
     data.otherLst = []
     data.player = "black"
     data.legalMoves = []
+    data.validDirections = []
     
 def drawBoard(canvas, data):
     for row in range(data.rows):
@@ -98,60 +99,66 @@ def drawScore(canvas, data):
                        data.margin+4*data.cellSize+data.radius,
                        text="x " + str(data.numWhite))
 
-def isValidMove(data, row, col):
+def isValidMove1(data, row, col):
     if data.player == "black": other = "white"
     elif data.player == "white": other = "black"
     
     for direction in data.directions:
         # check if the immediate up/down/left/right is in bound
         if ((0 > row+direction[0]) or (row+direction[0] >= data.rows) or (0 > col+direction[1]) or (col+direction[1] >= data.cols)):
+            print(direction, data.board[direction[0]][direction[1]])
             return False
         # check if the immediate up/down/left/right is empty
         elif data.board[row+direction[0]][col+direction[1]] == None:
+            print(direction, data.board[direction[0]][direction[1]])
             return False
         # check if the immediate up/down/left/right is opposite color
         elif data.board[row+direction[0]][col+direction[1]] == other:
+            print(direction, data.board[direction[0]][direction[1]])
+            data.validDirections.append((direction[0], direction[1]))
+            print(data.validDirections, data.board[direction[0]][direction[1]])
             return True
+    
+def isValidMove2(data, row, col):
+    if data.player == "black": other = "white"
+    elif data.player == "white": other = "black"
     
     for diagonal in data.diagonals:
         # check if the immediate NE/SE/SW/NW is in bound
         if ((0 > row+diagonal[0]) or (row+diagonal[0] >= data.rows) or (0 > col+diagonal[1]) or (col+diagonal[1] >= data.cols)):
+            print(diagonal, data.board[diagonal[0]][diagonal[1]])
             return False
         # check if the immediate NE/SE/SW/NW is empty
         elif data.board[row+diagonal[0]][col+diagonal[1]] == None:
+            print(diagonal, data.board[diagonal[0]][diagonal[1]])
             return False
         # check if the immediate NE/SE/SW/NW is opposite color
         elif data.board[row+diagonal[0]][col+diagonal[1]] == other:
+            print(diagonal, data.board[diagonal[0]][diagonal[1]])
+            data.validDirections.append((diagonal[0], diagonal[1]))
+            print(data.validDirections, data.board[diagonal[0]][diagonal[1]])
             return True
     
 def checkLegalMove(data, row, col):
     if data.player == "black": other = "white"
     elif data.player == "white": other = "black"    
     
-    for direction in data.directions:
+    print(data.validDirections, "entering checkLegalMove!")
+    
+    for direction in data.validDirections:
+        print(direction, " to keep looking")
         # check if could make a 'sandwich'
         if data.board[row+direction[0]*2][col+direction[1]*2] == None:
             data.legalMoves.append((row+direction[0]*2, col+direction[1]*2))
+            print(data.legalMoves, "a")
         else:
             increment = 2
             while data.board[row+direction[0]*increment][col+direction[1]*increment] == other:
                 increment += 1
             if ((data.board[row+direction[0]*increment][col+direction[1]*increment] == data.player) and
                 data.board[row+direction[0]*(increment+1)][col+direction[1]*(increment+1)] == None):
+                print(data.legalMoves, "b")
                 data.legalMoves.append((row+direction[0]*(increment+1), col+direction[1]*(increment+1)))
-    
-    print("legal moves: ", data.legalMoves)
-    
-    for diagonal in data.diagonals:
-        if data.board[row+diagonal[0]*2][col+diagonal[1]*2] == None:
-            data.legalMoves.append((row+diagonal[0]*2, col+diagonal[1]*2))
-        else:
-            increment = 2
-            while data.board[row+diagonal[0]*increment][col+diagonal[1]*increment] == other:
-                increment += 1
-            if ((data.board[row+diagonal[0]*increment][col+diagonal[1]*increment] == data.player) and
-                data.board[row+diagonal[0]*(increment+1)][col+diagonal[1]*(increment+1)] == None):
-                data.legalMoves.append((row+diagonal[0]*(increment+1), col+diagonal[1]*(increment+1)))
     
     print("legal moves: ", data.legalMoves)
             
@@ -190,7 +197,7 @@ def ripple(data, row, col):
                 flip(data)
             data.otherLst = []
 
-def getMove(data, a, b):
+def getHumanMove(data, a, b):
     (currRow, currCol) = getCell(a, b, data)
     return (currRow, currCol)
 
@@ -204,13 +211,12 @@ def makeMove(data, move):
             
             print("black chips: ", data.blackChips)
             print("white chips: ", data.whiteChips)
-            
+    
             if data.player == "black": data.player = "white"
             elif data.player == "white": data.player = "black"
             
-            print("player: ", data.player)
-            
-        data.legalMoves = []
+            data.legalMoves = []
+            data.validDirections = []
 
 def getCurrentChips(data):
     for row in range(data.rows):
@@ -222,25 +228,18 @@ def getCurrentChips(data):
                     data.whiteChips.append((row, col))
 
 def getLegalMoves(data):
-    getCurrentChips(data)
-    
-    print("black chips: ", data.blackChips)
-    print("white chips: ", data.whiteChips)
-    
     if data.player == "black":
         for chip in data.blackChips:
             print("chip: ", chip)
-            if isValidMove(data, chip[0], chip[1]):
+            if isValidMove1(data, chip[0], chip[1]) or isValidMove2(data, chip[0], chip[1]):
                 checkLegalMove(data, chip[0], chip[1])
     else:
         for chip in data.whiteChips:
             print("chip: ", chip)
-            if isValidMove(data, chip[0], chip[1]):
+            if isValidMove1(data, chip[0], chip[1]) or isValidMove2(data, chip[0], chip[1]):
                 checkLegalMove(data, chip[0], chip[1])
 
 def getAIMove(data):
-    getLegalMoves(data)
-    print(data.legalMoves)
     move = random.choice(data.legalMoves) # implementing random strategy to start out with first
     return move
 
@@ -249,10 +248,9 @@ def gameOver(data):
     fillCount = 0
     for row in range(data.rows):
         for col in range(data.cols):
-            if data.board[row][col] != None:
-                fillCount += 1
-    if fillCount == 64:
-        return True
+            if data.board[row][col] == None:
+                return False
+    return True
     
     # if both players can't make moves (no legal moves)
     if ((data.legalMoves == [] and data.player == "black") and 
@@ -263,14 +261,28 @@ def drawGameOverMessage(canvas, data):
     canvas.create_text(data.height/2, data.height/2, "Game Over")
 
 def mousePressed(event, data):
+    print("player: ", data.player)
+    
+    getCurrentChips(data)
+    
+    print("black chips: ", data.blackChips)
+    print("white chips: ", data.whiteChips)
+    
     if data.player == "black":
         getLegalMoves(data)
         print(data.legalMoves)
-        move = getMove(data, event.y, event.x)
+        move = getHumanMove(data, event.y, event.x)
+        print("move: ", move)
         makeMove(data, move)
-    else:
-        move = getAIMove(data)
-        makeMove(data, move)
+
+    # if data.player == "white":
+    #     getLegalMoves(data)
+    #     print(data.legalMoves)
+    #     move = getAIMove(data)
+    #     print("move: ", move)
+    #     makeMove(data, move)
+    
+    print("player: ", data.player)
     
 def keyPressed(event, data):
     pass

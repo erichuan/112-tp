@@ -163,13 +163,18 @@ def ripple(data, row, col):
                 flip(data)
             data.otherLst = []
     
-def makeMove(data, a, b):
+def getHumanMove(a, b, data):
     (currRow, currCol) = getCell(a, b, data)
-    move = (currRow, currCol)
-    
+    return (currRow, currCol)    
+
+def getAIMove(data):
+    move = random.choice(data.legalMoves) # implementing random strategy to start out with first
+    return move
+
+def makeMove(data, move):
     if move in data.legalMoves:
-        data.board[currRow][currCol] = data.player
-        ripple(data, currRow, currCol)
+        data.board[move[0]][move[1]] = data.player
+        ripple(data, move[0], move[1])
         
         if data.player == "black": data.player = "white"
         elif data.player == "white": data.player = "black"
@@ -186,12 +191,11 @@ def getLegalMoves(data):
 def gameOver(data):
     # if entire board filled
     fillCount = 0
-    for row in data.rows:
-        for col in data.cols:
-            if data.board[row][col] != None:
-                fillCount += 1
-    if fillCount == 64:
-        return True
+    for row in range(data.rows):
+        for col in range(data.cols):
+            if data.board[row][col] == None:
+                return False
+    return True
     
     # if both players can't make moves (no legal moves)
     if ((data.legalMoves == [] and data.player == "black") and 
@@ -203,8 +207,15 @@ def gameOver(data):
 ##
 
 def mousePressed(event, data):
-    getLegalMoves(data)
-    makeMove(data, event.y, event.x)
+    if data.player == "black":
+        getLegalMoves(data)
+        move = getHumanMove(event.y, event.x, data)
+        makeMove(data, move)
+        
+    if data.player == "white":
+        getLegalMoves(data)
+        move = getAIMove(data)
+        makeMove(data, move)
         
 def keyPressed(event, data):
     pass
