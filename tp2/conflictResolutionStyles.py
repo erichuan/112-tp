@@ -171,7 +171,7 @@ def mousePressed(event, data):
     
     print("collaborating= ", data.collaborating, "compromising= ", data.compromising, "competing= ", data.competing,
           "accommodating= ", data.accommodating, "avoiding= ", data.avoiding)
-    if data.index > len(data.prompts):
+    if data.index >= len(data.prompts):
         data.quizOver = not data.quizOver
     
 

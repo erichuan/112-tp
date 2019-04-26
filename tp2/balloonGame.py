@@ -169,7 +169,6 @@ def playGameMousePressed(event, data):
     popIndex = data.balloon.tolerances[index]
     if not data.balloon.isPopped(popIndex):
         data.balloon.grow(event.x, event.y, data.width*0.375, data.width*0.625, data.height*0.79, data.height*0.91)
-        print("keep growing")
     
     else:
         data.clickList.append(data.clicks)
@@ -182,7 +181,6 @@ def playGameMousePressed(event, data):
             index += 1
     
     if data.balloon.collectButton(event.x, event.y):
-        print("im here")
         data.clickList.append(data.clicks)
         data.balloon.runningTotal += data.balloon.currTotal
         data.balloon.currTotal = 0
