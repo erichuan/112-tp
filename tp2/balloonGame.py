@@ -22,6 +22,7 @@ def init(data):
     data.vRadius = data.balloon.vRadius
     data.hPlus = data.balloon.hPlus
     data.vPlus = data.balloon.vPlus
+    data.runningTotal = 0
     
 ####################################
 # mode dispatcher
@@ -128,7 +129,6 @@ class Balloon(object):
             tolerance = random.randint(1,32)
             self.tolerances.append(tolerance)
         self.currTotal = 0
-        self.runningTotal = 0
         self.collectButtonX1 = collectButtonX1
         self.collectButtonX2 = collectButtonX2
         self.collectButtonY1 = collectButtonY1
@@ -172,7 +172,6 @@ def playGameMousePressed(event, data):
     
     else:
         data.clickList.append(data.clicks)
-        data.balloon.runningTotal += data.balloon.currTotal
         data.balloon.currTotal = 0
         data.balloon = Balloon(data.width/2, data.height*0.4, 0, 0, 5, 5, 0, [], [], 
                                data.width*0.075, data.width*0.325, data.height*0.79, data.height*0.91)
@@ -182,7 +181,7 @@ def playGameMousePressed(event, data):
     
     if data.balloon.collectButton(event.x, event.y):
         data.clickList.append(data.clicks)
-        data.balloon.runningTotal += data.balloon.currTotal
+        data.runningTotal += data.balloon.currTotal
         data.balloon.currTotal = 0
         
     if index < len(data.balloon.tolerances):
@@ -217,7 +216,7 @@ def playGameRedrawAll(canvas, data):
                        text="Current Earnings:" + str(data.balloon.currTotal),
                        anchor="nw")
     canvas.create_text(data.width*0.7,data.height*0.85,
-                       text="Cumulative Earnings:" + str(data.balloon.runningTotal),
+                       text="Cumulative Earnings:" + str(data.runningTotal),
                        anchor="sw")
     # draw balloon
     data.balloon.drawBalloon(canvas)

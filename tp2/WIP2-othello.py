@@ -103,25 +103,32 @@ def getLegalHumanMoves(data, row, col):
         for direction in data.directions:
             tmpRow = row+direction[0]
             tmpCol = col+direction[1]
-            if data.board[tmpRow][tmpCol] == "white":
-                while data.board[tmpRow][tmpCol] == "white":
-                    tmpRow += direction[0]
-                    tmpCol += direction[1]
-                if data.board[tmpRow][tmpCol] == "black":
-                    data.legalMoves.append((row, col))
+            if ((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)):
+                if data.board[tmpRow][tmpCol] == "white":
+                    while (((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)) and 
+                            (data.board[tmpRow][tmpCol] == "white")):
+                        tmpRow += direction[0]
+                        tmpCol += direction[1]
+                    if (((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)) and 
+                        (data.board[tmpRow][tmpCol] == "black")):
+                        data.legalMoves.append((row, col))
+
 
 def getLegalAIMoves(data, chips):
-    print(chips)
     for chip in chips:
         for direction in data.directions:
             tmpRow = chip[0]+direction[0]
             tmpCol = chip[1]+direction[1]
-            if data.board[tmpRow][tmpCol] == "black":
-                while data.board[tmpRow][tmpCol] == "black":
-                    tmpRow += direction[0]
-                    tmpCol += direction[1]
-                if data.board[tmpRow][tmpCol] == None:
-                    data.legalMoves.append((tmpRow, tmpCol))
+            if ((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)):
+                if data.board[tmpRow][tmpCol] == "black":
+                    while (((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)) and 
+                           (data.board[tmpRow][tmpCol] == "black")):
+                        tmpRow += direction[0]
+                        tmpCol += direction[1]
+                    if (((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)) and 
+                        (data.board[tmpRow][tmpCol] == None)):
+                        data.legalMoves.append((tmpRow, tmpCol))
+
 
 def getCell(x,y, data):
     row = (x-data.margin)//data.cellSize
@@ -139,13 +146,16 @@ def ripple(data, row, col):
     for direction in data.directions:
         tmpRow = row+direction[0]
         tmpCol = col+direction[1]
-        while data.board[tmpRow][tmpCol] == other:
-            data.otherLst.append((tmpRow, tmpCol))
-            tmpRow += direction[0]
-            tmpCol += direction[1]
-        if data.board[tmpRow][tmpCol] == data.player:
-            flip(data)
-        data.otherLst = []
+        if ((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)):
+            while (((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)) and 
+                    (data.board[tmpRow][tmpCol] == other)):
+                data.otherLst.append((tmpRow, tmpCol))
+                tmpRow += direction[0]
+                tmpCol += direction[1]
+            if (((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)) and 
+                (data.board[tmpRow][tmpCol] == data.player)):
+                flip(data)
+            data.otherLst = []
     
 def getHumanMove(a, b, data):
     (currRow, currCol) = getCell(a, b, data)
@@ -166,15 +176,18 @@ def tempRipple(data, row, col, player):
     for direction in data.directions:
         tmpRow = row+direction[0]
         tmpCol = col+direction[1]
-        while data.board[tmpRow][tmpCol] == other:
-            data.otherLst.append((tmpRow, tmpCol))
-            tmpRow += direction[0]
-            tmpCol += direction[1]
-        if data.board[tmpRow][tmpCol] == player:
-            for other in data.otherLst:
-                data.board[other[0]][other[1]] = player
-                data.tmpMoves.append((other[0], other[1]))
-        data.otherLst = []
+        if ((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)):
+            while (((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)) and 
+                   (data.board[tmpRow][tmpCol] == other)):
+                data.otherLst.append((tmpRow, tmpCol))
+                tmpRow += direction[0]
+                tmpCol += direction[1]
+            if (((0 <= tmpRow < data.rows) and (0 <= tmpCol < data.cols)) and 
+                (data.board[tmpRow][tmpCol] == player)):
+                for other in data.otherLst:
+                    data.board[other[0]][other[1]] = player
+                    data.tmpMoves.append((other[0], other[1]))
+            data.otherLst = []
 
 def tempMove(data, move, player):
     data.board[move[0]][move[1]] = player
@@ -185,8 +198,13 @@ def unmakeTempMove(data, player):
     if player == "black": other = "white"
     elif player == "white": other = "black"
     
+    firstMove = data.tmpMoves.pop(0)
+    data.board[firstMove[0]][firstMove[1]] = None
+    
     for move in data.tmpMoves:
         data.board[move[0]][move[1]] = other
+    
+    data.tmpMoves = []
         
 def minimize(data):
     if not gameOver(data):
@@ -199,9 +217,8 @@ def minimize(data):
             if data.numBlack <= bestScore:
                 bestMove = legalMove
                 bestScore = data.numBlack
-            else:
-                unmakeTempMove(data, tmpPlayer)
-                countBlackChips(data)
+            unmakeTempMove(data, tmpPlayer)
+            countBlackChips(data)
         return bestMove
 
 ##
@@ -252,7 +269,6 @@ def mousePressed(event, data):
     if data.player == "white":
         chips = getAIChips(data)
         getLegalAIMoves(data, chips)
-        print(data.legalMoves)
         move = getAIMove(data)
         makeMove(data, move)
         
