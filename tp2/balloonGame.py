@@ -189,7 +189,6 @@ def playGameMousePressed(event, data):
         index += 1
     
 
-        
 def playGameKeyPressed(event, data):
     if (event.keysym == 'h'):
         data.mode = "help"

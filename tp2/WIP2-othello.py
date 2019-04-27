@@ -27,6 +27,7 @@ def init(data):
     data.player = "black"
     data.legalMoves = []
     data.whiteChips = []
+    data.tmpMoves = []
     
 def drawBoard(canvas, data):
     for row in range(data.rows):
@@ -112,11 +113,9 @@ def getLegalHumanMoves(data, row, col):
 def getLegalAIMoves(data, chips):
     print(chips)
     for chip in chips:
-        print("chip: ", chip)
         for direction in data.directions:
             tmpRow = chip[0]+direction[0]
             tmpCol = chip[1]+direction[1]
-            print("data.board[%d][%d]: " % (tmpRow, tmpCol), data.board[tmpRow][tmpCol])
             if data.board[tmpRow][tmpCol] == "black":
                 while data.board[tmpRow][tmpCol] == "black":
                     tmpRow += direction[0]
@@ -151,10 +150,61 @@ def ripple(data, row, col):
 def getHumanMove(a, b, data):
     (currRow, currCol) = getCell(a, b, data)
     return (currRow, currCol)    
-
+    
 def getAIMove(data):
-    move = random.choice(data.legalMoves) # implementing random strategy to start out with first
+    move = minimize(data) # AI to minimize black chips
     return move
+
+## implementing (simple) minimax!
+# AI ("white") to minimize human ("black") chips
+# in other words, AI will be 'MinnieMove' and human is 'MaxieMove'
+
+def tempRipple(data, row, col, player):
+    if player == "black": other = "white"
+    elif player == "white": other = "black"
+    
+    for direction in data.directions:
+        tmpRow = row+direction[0]
+        tmpCol = col+direction[1]
+        while data.board[tmpRow][tmpCol] == other:
+            data.otherLst.append((tmpRow, tmpCol))
+            tmpRow += direction[0]
+            tmpCol += direction[1]
+        if data.board[tmpRow][tmpCol] == player:
+            for other in data.otherLst:
+                data.board[other[0]][other[1]] = player
+                data.tmpMoves.append((other[0], other[1]))
+        data.otherLst = []
+
+def tempMove(data, move, player):
+    data.board[move[0]][move[1]] = player
+    data.tmpMoves.append((move[0], move[1]))
+    tempRipple(data, move[0], move[1], player)
+
+def unmakeTempMove(data, player):
+    if player == "black": other = "white"
+    elif player == "white": other = "black"
+    
+    for move in data.tmpMoves:
+        data.board[move[0]][move[1]] = other
+        
+def minimize(data):
+    if not gameOver(data):
+        bestMove = None
+        bestScore = float("inf")
+        tmpPlayer = "white"
+        for legalMove in data.legalMoves:
+            tmpMove = tempMove(data, legalMove, tmpPlayer)
+            countBlackChips(data)
+            if data.numBlack <= bestScore:
+                bestMove = legalMove
+                bestScore = data.numBlack
+            else:
+                unmakeTempMove(data, tmpPlayer)
+                countBlackChips(data)
+        return bestMove
+
+##
 
 def getAIChips(data):
     whiteChips = []
@@ -168,30 +218,30 @@ def makeMove(data, move):
     if move in data.legalMoves:
         data.board[move[0]][move[1]] = data.player
         ripple(data, move[0], move[1])
-        print(1)
         
         if data.player == "black": data.player = "white"
         elif data.player == "white": data.player = "black"
         
         data.legalMoves = []
 
-def gameOver(data):
-    # if entire board filled
+def completeBoard(data):
     fillCount = 0
     for row in range(data.rows):
         for col in range(data.cols):
             if data.board[row][col] == None:
                 return False
     return True
+
+def gameOver(data):
+    # if entire board filled
+    if completeBoard(data):
+        return True
     
     # if both players can't make moves (no legal moves)
     if ((data.legalMoves == [] and data.player == "black") and 
         (data.legalMoves == [] and data.player == "white")):
         return True
 
-
-
-##
 
 def mousePressed(event, data):
     if data.player == "black":
@@ -205,6 +255,8 @@ def mousePressed(event, data):
         print(data.legalMoves)
         move = getAIMove(data)
         makeMove(data, move)
+        
+        data.moves = []
         
 def keyPressed(event, data):
     pass

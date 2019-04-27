@@ -14,8 +14,6 @@ def init(data):
     data.board[3][3] = data.board[4][4] = "white"
     data.numBlack = 0
     data.numWhite = 0
-    data.blackChips = []
-    data.whiteChips = []
     NORTH = (-1, 0)
     SOUTH = (+1, 0)
     EAST = (0, +1)
@@ -24,12 +22,11 @@ def init(data):
     SOUTHEAST = (+1, +1)
     SOUTHWEST = (+1, -1)
     NORTHWEST = (-1, -1)
-    data.directions = [NORTH, SOUTH, EAST, WEST]
-    data.diagonals = [NORTHEAST, SOUTHEAST, SOUTHWEST, NORTHWEST]
+    data.directions = [NORTH, SOUTH, EAST, WEST, NORTHEAST, SOUTHEAST, SOUTHWEST, NORTHWEST]
     data.otherLst = []
     data.player = "black"
     data.legalMoves = []
-    data.validDirections = []
+    data.whiteChips = []
     
 def drawBoard(canvas, data):
     for row in range(data.rows):
@@ -99,69 +96,32 @@ def drawScore(canvas, data):
                        data.margin+4*data.cellSize+data.radius,
                        text="x " + str(data.numWhite))
 
-def isValidMove1(data, row, col):
-    if data.player == "black": other = "white"
-    elif data.player == "white": other = "black"
-    
-    for direction in data.directions:
-        # check if the immediate up/down/left/right is in bound
-        if ((0 > row+direction[0]) or (row+direction[0] >= data.rows) or (0 > col+direction[1]) or (col+direction[1] >= data.cols)):
-            print(direction, data.board[direction[0]][direction[1]])
-            return False
-        # check if the immediate up/down/left/right is empty
-        elif data.board[row+direction[0]][col+direction[1]] == None:
-            print(direction, data.board[direction[0]][direction[1]])
-            return False
-        # check if the immediate up/down/left/right is opposite color
-        elif data.board[row+direction[0]][col+direction[1]] == other:
-            print(direction, data.board[direction[0]][direction[1]])
-            data.validDirections.append((direction[0], direction[1]))
-            print(data.validDirections, data.board[direction[0]][direction[1]])
-            return True
-    
-def isValidMove2(data, row, col):
-    if data.player == "black": other = "white"
-    elif data.player == "white": other = "black"
-    
-    for diagonal in data.diagonals:
-        # check if the immediate NE/SE/SW/NW is in bound
-        if ((0 > row+diagonal[0]) or (row+diagonal[0] >= data.rows) or (0 > col+diagonal[1]) or (col+diagonal[1] >= data.cols)):
-            print(diagonal, data.board[diagonal[0]][diagonal[1]])
-            return False
-        # check if the immediate NE/SE/SW/NW is empty
-        elif data.board[row+diagonal[0]][col+diagonal[1]] == None:
-            print(diagonal, data.board[diagonal[0]][diagonal[1]])
-            return False
-        # check if the immediate NE/SE/SW/NW is opposite color
-        elif data.board[row+diagonal[0]][col+diagonal[1]] == other:
-            print(diagonal, data.board[diagonal[0]][diagonal[1]])
-            data.validDirections.append((diagonal[0], diagonal[1]))
-            print(data.validDirections, data.board[diagonal[0]][diagonal[1]])
-            return True
-    
-def checkLegalMove(data, row, col):
-    if data.player == "black": other = "white"
-    elif data.player == "white": other = "black"    
-    
-    print(data.validDirections, "entering checkLegalMove!")
-    
-    for direction in data.validDirections:
-        print(direction, " to keep looking")
-        # check if could make a 'sandwich'
-        if data.board[row+direction[0]*2][col+direction[1]*2] == None:
-            data.legalMoves.append((row+direction[0]*2, col+direction[1]*2))
-            print(data.legalMoves, "a")
-        else:
-            increment = 2
-            while data.board[row+direction[0]*increment][col+direction[1]*increment] == other:
-                increment += 1
-            if ((data.board[row+direction[0]*increment][col+direction[1]*increment] == data.player) and
-                data.board[row+direction[0]*(increment+1)][col+direction[1]*(increment+1)] == None):
-                print(data.legalMoves, "b")
-                data.legalMoves.append((row+direction[0]*(increment+1), col+direction[1]*(increment+1)))
-    
-    print("legal moves: ", data.legalMoves)
-            
+
+def getLegalHumanMoves(data, row, col):
+    if data.board[row][col] == None:
+        for direction in data.directions:
+            tmpRow = row+direction[0]
+            tmpCol = col+direction[1]
+            if data.board[tmpRow][tmpCol] == "white":
+                while data.board[tmpRow][tmpCol] == "white":
+                    tmpRow += direction[0]
+                    tmpCol += direction[1]
+                if data.board[tmpRow][tmpCol] == "black":
+                    data.legalMoves.append((row, col))
+
+def getLegalAIMoves(data, chips):
+    print(chips)
+    for chip in chips:
+        for direction in data.directions:
+            tmpRow = chip[0]+direction[0]
+            tmpCol = chip[1]+direction[1]
+            if data.board[tmpRow][tmpCol] == "black":
+                while data.board[tmpRow][tmpCol] == "black":
+                    tmpRow += direction[0]
+                    tmpCol += direction[1]
+                if data.board[tmpRow][tmpCol] == None:
+                    data.legalMoves.append((tmpRow, tmpCol))
+
 def getCell(x,y, data):
     row = (x-data.margin)//data.cellSize
     col = (y-data.margin)//data.cellSize
@@ -176,114 +136,74 @@ def ripple(data, row, col):
     elif data.player == "white": other = "black"
     
     for direction in data.directions:
-        if data.board[row+direction[0]][col+direction[1]] == other:
-            data.otherLst.append((row+direction[0], col+direction[1]))
-            increment = 2
-            while data.board[row+direction[0]*increment][col+direction[1]*increment] == other:
-                data.otherLst.append((row+direction[0]*increment, col+direction[1]*increment))
-                increment += 1
-            if data.board[row+direction[0]*increment][col+direction[1]*increment] == data.player:
-                flip(data)
-            data.otherLst = []
+        tmpRow = row+direction[0]
+        tmpCol = col+direction[1]
+        while data.board[tmpRow][tmpCol] == other:
+            data.otherLst.append((tmpRow, tmpCol))
+            tmpRow += direction[0]
+            tmpCol += direction[1]
+        if data.board[tmpRow][tmpCol] == data.player:
+            flip(data)
+        data.otherLst = []
     
-    for diagonal in data.diagonals:
-        if data.board[row+diagonal[0]][col+diagonal[1]] == other:
-            data.otherLst.append((row+diagonal[0], col+diagonal[1]))
-            increment = 2
-            while data.board[row+diagonal[0]*increment][col+diagonal[1]*increment] == other:
-                data.otherLst.append((row+diagonal[0]*increment, col+diagonal[1]*increment))
-                increment += 1
-            if data.board[row+diagonal[0]*increment][col+diagonal[1]*increment] == data.player:
-                flip(data)
-            data.otherLst = []
-
-def getHumanMove(data, a, b):
+def getHumanMove(a, b, data):
     (currRow, currCol) = getCell(a, b, data)
-    return (currRow, currCol)
-
-def makeMove(data, move):
-    while not gameOver(data):
-        if move in data.legalMoves:
-            data.board[move[0]][move[1]] = data.player
-            ripple(data, move[0], move[1])
-            
-            getCurrentChips(data)
-            
-            print("black chips: ", data.blackChips)
-            print("white chips: ", data.whiteChips)
-    
-            if data.player == "black": data.player = "white"
-            elif data.player == "white": data.player = "black"
-            
-            data.legalMoves = []
-            data.validDirections = []
-
-def getCurrentChips(data):
-    for row in range(data.rows):
-        for col in range(data.cols):
-            if data.board[row][col] == data.player:
-                if data.player == "black":
-                    data.blackChips.append((row, col))
-                else:
-                    data.whiteChips.append((row, col))
-
-def getLegalMoves(data):
-    if data.player == "black":
-        for chip in data.blackChips:
-            print("chip: ", chip)
-            if isValidMove1(data, chip[0], chip[1]) or isValidMove2(data, chip[0], chip[1]):
-                checkLegalMove(data, chip[0], chip[1])
-    else:
-        for chip in data.whiteChips:
-            print("chip: ", chip)
-            if isValidMove1(data, chip[0], chip[1]) or isValidMove2(data, chip[0], chip[1]):
-                checkLegalMove(data, chip[0], chip[1])
+    return (currRow, currCol)    
 
 def getAIMove(data):
     move = random.choice(data.legalMoves) # implementing random strategy to start out with first
     return move
 
-def gameOver(data):
-    # if entire board filled
+def getAIChips(data):
+    whiteChips = []
+    for row in range(data.rows):
+        for col in range(data.cols):
+            if data.board[row][col] == "white":
+                whiteChips.append((row, col))
+    return whiteChips
+
+def makeMove(data, move):
+    if move in data.legalMoves:
+        data.board[move[0]][move[1]] = data.player
+        ripple(data, move[0], move[1])
+        
+        if data.player == "black": data.player = "white"
+        elif data.player == "white": data.player = "black"
+        
+        data.legalMoves = []
+
+def completeBoard(data):
     fillCount = 0
     for row in range(data.rows):
         for col in range(data.cols):
             if data.board[row][col] == None:
                 return False
     return True
+
+def gameOver(data):
+    # if entire board filled
+    if completeBoard(data):
+        return True
     
     # if both players can't make moves (no legal moves)
     if ((data.legalMoves == [] and data.player == "black") and 
         (data.legalMoves == [] and data.player == "white")):
         return True
 
-def drawGameOverMessage(canvas, data):
-    canvas.create_text(data.height/2, data.height/2, "Game Over")
 
 def mousePressed(event, data):
-    print("player: ", data.player)
-    
-    getCurrentChips(data)
-    
-    print("black chips: ", data.blackChips)
-    print("white chips: ", data.whiteChips)
-    
     if data.player == "black":
-        getLegalMoves(data)
-        print(data.legalMoves)
-        move = getHumanMove(data, event.y, event.x)
-        print("move: ", move)
+        move = getHumanMove(event.y, event.x, data)
+        getLegalHumanMoves(data, move[0], move[1])
         makeMove(data, move)
-
-    # if data.player == "white":
-    #     getLegalMoves(data)
-    #     print(data.legalMoves)
-    #     move = getAIMove(data)
-    #     print("move: ", move)
-    #     makeMove(data, move)
-    
-    print("player: ", data.player)
-    
+        
+    if data.player == "white":
+        chips = getAIChips(data)
+        getLegalAIMoves(data, chips)
+        print(data.legalMoves)
+        move = getAIMove(data)
+        makeMove(data, move)
+        
 def keyPressed(event, data):
     pass
 
@@ -297,9 +217,7 @@ def redrawAll(canvas, data):
     
     drawStartingChips(canvas, data)
     drawScore(canvas, data) 
-    
-    if gameOver(data):
-        drawGameOverMessage(canvas, data)
+ 
 
 ####################################
 # use the run function as-is
