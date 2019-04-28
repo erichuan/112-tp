@@ -39,140 +39,110 @@ for line in initPrompts.splitlines():
 prompts = []
 for i in range(len(promptList)):
     prompts.append(promptList[i][(len(str(i+1))+2):])
-
-
-class ResolutionType(object):
-    def __init__(self, resolutionStyle):
-        self.resolutionStyle = resolutionStyle
-        self.assertive = ("assertiveness", None)
-        self.competitive = ("competitiveness", None)
-        self.resolution = (self.resolutionStyle, self.assertive, self.competitive)
-    
-    def assertiveness(self):
-        if self.resolutionStyle == "Competing":
-            self.level = "high"
-            self.assertive[1] = self.level
-        elif self.resolutionStyle == "Collaborating":
-            self.level = "high"
-            self.assertive[1] = self.level
-        elif self.resolutionStyle == "Compromising":
-            self.level = "medium"
-            self.assertive[1] = self.level
-        elif self.resolutionStyle == "Avoiding":
-            self.level = "low"
-            self.assertive[1] = self.level
-        elif self.resolutionStyle == "Accommodating":
-            self.level = "low"
-            self.assertive[1] = self.level
-    
-    def competitiveness(self):
-        if self.resolutionStyle == "Competing":
-            self.level = "low"
-            self.competitive[1] = self.level
-        elif self.resolutionStyle == "Collaborating":
-            self.level = "high"
-            self.competitive[1] = self.level
-        elif self.resolutionStyle == "Compromising":
-            self.level = "medium"
-            self.competitive[1] = self.level
-        elif self.resolutionStyle == "Avoiding":
-            self.level = "low"
-            self.competitive[1] = self.level
-        elif self.resolutionStyle == "Accommodating":
-            self.level = "high"
-            self.competitive[1] = self.level
             
 def drawQuestion(canvas, data):
     canvas.create_text(data.width//2, data.height//4, text=data.prompts[data.index],font="Arial 10")
 
 def drawEvals(canvas, data):
-    rarely = canvas.create_text(data.margin, data.height*0.75,text="Rarely", anchor="nw")
-    sometimes = canvas.create_text(data.margin+data.partition, data.height*0.75,text="Sometimes", anchor="n")
-    often = canvas.create_text(data.margin+data.partition*2, data.height*0.75,text="Often", anchor="n")
-    always = canvas.create_text(data.width-data.margin, data.height*0.75,text="Always", anchor="ne")
+    rarely = canvas.create_rectangle(data.margin,data.height*0.7,data.margin+data.boxWidth,data.height*0.8,fill="red")
+    sometimes = canvas.create_rectangle(data.margin+data.boxWidth,data.height*0.7,data.margin+2*data.boxWidth,data.height*0.8,fill="yellow")
+    often = canvas.create_rectangle(data.margin,data.height*0.8,data.margin+data.boxWidth,data.height*0.9,fill="green")
+    always = canvas.create_rectangle(data.margin+data.boxWidth,data.height*0.8,data.margin+2*data.boxWidth,data.height*0.9,fill="blue")
+    
+    rarelyText = canvas.create_text(data.margin+data.boxWidth/2, data.height*0.75,text="Rarely")
+    sometimesText = canvas.create_text(data.margin+1.5*data.boxWidth, data.height*0.75,text="Sometimes")
+    oftenText = canvas.create_text(data.margin+data.boxWidth/2, data.height*0.85,text="Often")
+    alwaysText = canvas.create_text(data.margin+1.5*data.boxWidth, data.height*0.85,text="Always")
+
+def drawTexts(canvas, data, s, v, height):
+    canvas.create_text(data.width/2, data.height*height, text=str(s) + ": " + str(v))
 
 def drawEnding(canvas, data):
-    canvas.create_text(data.width//2, data.height//4, text="Quiz Over")
-        
+    mainResult = "Your primary style of conflict resolution is: " + str(data.styles.get(max(data.styleValues)))
+    mainResult1 = "Your least likely style is: " + str(data.styles.get(min(data.styleValues)))
+    subResult = "Here's a breakdown of your results!"
+    
+    canvas.create_rectangle(0, 0, data.width, data.height,fill='beige', width=0)
+    canvas.create_text(data.width/2, data.height/4, text=mainResult)
+    canvas.create_text(data.width/2, data.height*0.28, text=mainResult1)
+    canvas.create_text(data.width/2, data.height/3,text=subResult)
+    
+    for style in data.styles:
+        textHeight = 0.32
+        drawTexts(canvas, data, style, data.styles[style], textHeight)
+        textHeight += 0.05
+
 def init(data):
-    data.style = "" # ["Competing", "Collaborating", "Compromising", "Avoiding", "Accommodating"]
-    data.resolutionType = ResolutionType(data.style)
     data.prompts = prompts
     data.index = 0
-    data.margin = 15
-    data.lineLength = data.width-2*data.margin
-    data.partition = data.lineLength/3
+    data.margin = 50
+    data.boxWidth = 150
     data.collaborating = 0
     data.competing = 0
     data.compromising = 0
     data.avoiding = 0
     data.accommodating = 0
+    data.styles = {"Competing": data.competing, "Collaborating": data.collaborating, "Compromising": data.compromising, "Avoiding": data.avoiding, "Accommodating": data.accommodating}
+    data.styleValues = [data.competing, data.collaborating, data.compromising, data.avoiding, data.accommodating]
     data.quizOver = False
 
 def mousePressed(event, data):
-    if data.index < len(data.prompts):
+    if data.index < len(data.prompts)-1:
         if ((data.index == 1) or (data.index == 5) or (data.index == 7)):
-            if ((0 <= event.x <= data.margin) and (data.height*0.7 <= event.y <= data.height*0.8)): 
+            if ((data.margin <= event.x <= (data.margin+data.boxWidth)) and (data.height*0.7 <= event.y <= data.height*0.8)): 
                 data.collaborating += 1
-            elif ((data.margin <= event.x <= data.margin+data.partition) and (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin+data.boxWidth <= event.x <= (data.margin+2*data.boxWidth)) and (data.height*0.7 <= event.y <= data.height*0.8)): 
                 data.collaborating += 2
-            elif ((data.margin+data.partition <= event.x <= data.margin+2*data.partition) and 
-                  (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin <= event.x <= (data.margin+data.boxWidth)) and (data.height*0.8 <= event.y <= data.height*0.9)): 
                 data.collaborating += 3
-            elif ((data.margin+data.partition*2 <= event.x <= data.width-data.margin) and 
-                  (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin+data.boxWidth <= event.x <= (data.margin+2*data.boxWidth)) and (data.height*0.8 <= event.y <= data.height*0.9)): 
                 data.collaborating += 4
         elif ((data.index == 2) or (data.index == 8) or (data.index == 13)):
-            if ((0 <= event.x <= data.margin) and (data.height*0.7 <= event.y <= data.height*0.8)): 
+            if ((data.margin <= event.x <= (data.margin+data.boxWidth)) and (data.height*0.7 <= event.y <= data.height*0.8)): 
                 data.compromising += 1
-            elif ((data.margin <= event.x <= data.margin+data.partition) and (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin+data.boxWidth <= event.x <= (data.margin+2*data.boxWidth)) and (data.height*0.7 <= event.y <= data.height*0.8)): 
                 data.compromising += 2
-            elif ((data.margin+data.partition <= event.x <= data.margin+2*data.partition) and 
-                  (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin <= event.x <= (data.margin+data.boxWidth)) and (data.height*0.8 <= event.y <= data.height*0.9)): 
                 data.compromising += 3
-            elif ((data.margin+data.partition*2 <= event.x <= data.width-data.margin) and 
-                  (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin+data.boxWidth <= event.x <= (data.margin+2*data.boxWidth)) and (data.height*0.8 <= event.y <= data.height*0.9)): 
                 data.compromising += 4
         elif ((data.index == 3) or (data.index == 11) or (data.index == 14)):
-            if ((0 <= event.x <= data.margin) and (data.height*0.7 <= event.y <= data.height*0.8)): 
+            if ((data.margin <= event.x <= (data.margin+data.boxWidth)) and (data.height*0.7 <= event.y <= data.height*0.8)): 
                 data.accommodating += 1
-            elif ((data.margin <= event.x <= data.margin+data.partition) and (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin+data.boxWidth <= event.x <= (data.margin+2*data.boxWidth)) and (data.height*0.7 <= event.y <= data.height*0.8)): 
                 data.accommodating += 2
-            elif ((data.margin+data.partition <= event.x <= data.margin+2*data.partition) and 
-                  (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin <= event.x <= (data.margin+data.boxWidth)) and (data.height*0.8 <= event.y <= data.height*0.9)): 
                 data.accommodating += 3
-            elif ((data.margin+data.partition*2 <= event.x <= data.width-data.margin) and 
-                  (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin+data.boxWidth <= event.x <= (data.margin+2*data.boxWidth)) and (data.height*0.8 <= event.y <= data.height*0.9)): 
                 data.accommodating += 4
         elif ((data.index == 4) or (data.index == 9) or (data.index == 12)):
-            if ((0 <= event.x <= data.margin) and (data.height*0.7 <= event.y <= data.height*0.8)): 
+            if ((data.margin <= event.x <= (data.margin+data.boxWidth)) and (data.height*0.7 <= event.y <= data.height*0.8)): 
                 data.competing += 1
-            elif ((data.margin <= event.x <= data.margin+data.partition) and (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin+data.boxWidth <= event.x <= (data.margin+2*data.boxWidth)) and (data.height*0.7 <= event.y <= data.height*0.8)): 
                 data.competing += 2
-            elif ((data.margin+data.partition <= event.x <= data.margin+2*data.partition) and 
-                  (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin <= event.x <= (data.margin+data.boxWidth)) and (data.height*0.8 <= event.y <= data.height*0.9)): 
                 data.competing += 3
-            elif ((data.margin+data.partition*2 <= event.x <= data.width-data.margin) and 
-                  (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin+data.boxWidth <= event.x <= (data.margin+2*data.boxWidth)) and (data.height*0.8 <= event.y <= data.height*0.9)): 
                 data.competing += 4
         elif ((data.index == 6) or (data.index == 10) or (data.index == 15)):
-            if ((0 <= event.x <= data.margin) and (data.height*0.7 <= event.y <= data.height*0.8)): 
+            if ((data.margin <= event.x <= (data.margin+data.boxWidth)) and (data.height*0.7 <= event.y <= data.height*0.8)): 
                 data.avoiding += 1
-            elif ((data.margin <= event.x <= data.margin+data.partition) and (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin+data.boxWidth <= event.x <= (data.margin+2*data.boxWidth)) and (data.height*0.7 <= event.y <= data.height*0.8)): 
                 data.avoiding += 2
-            elif ((data.margin+data.partition <= event.x <= data.margin+2*data.partition) and 
-                  (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin <= event.x <= (data.margin+data.boxWidth)) and (data.height*0.8 <= event.y <= data.height*0.9)): 
                 data.avoiding += 3
-            elif ((data.margin+data.partition*2 <= event.x <= data.width-data.margin) and 
-                  (data.height*0.7 <= event.y <= data.height*0.8)): 
+            elif ((data.margin+data.boxWidth <= event.x <= (data.margin+2*data.boxWidth)) and (data.height*0.8 <= event.y <= data.height*0.9)): 
                 data.avoiding += 4
             
         data.index += 1
     
-    print("collaborating= ", data.collaborating, "compromising= ", data.compromising, "competing= ", data.competing,
-          "accommodating= ", data.accommodating, "avoiding= ", data.avoiding)
-    if data.index >= len(data.prompts):
+    else:
         data.quizOver = not data.quizOver
+        data.styles = {"Competing": data.competing, "Collaborating": data.collaborating, "Compromising": data.compromising, "Avoiding":
+                        data.avoiding, "Accommodating": data.accommodating}
+        data.styleValues = [data.competing, data.collaborating, data.compromising, data.avoiding, data.accommodating]
+        
+        print(data.styles)
     
 
 def keyPressed(event, data):

@@ -2,6 +2,7 @@
 General animation framework taken from animation demo notes
 '''
 from tkinter import *
+from othello import *
 
 ####################################
 # init
@@ -18,24 +19,28 @@ def init(data):
 def mousePressed(event, data):
     if (data.mode == "homeScreen"):    homeScreenMousePressed(event, data)
     elif (data.mode == "mainLoop"):    mainLoopMousePressed(event, data)
+    elif (data.mode == "othello"):     othelloMousePressed(event, data)
     elif (data.mode == "balloonGame"): balloonGameMousePressed(event, data) 
     elif (data.mode == "help"):        helpMousePressed(event, data)
 
 def keyPressed(event, data):
     if (data.mode == "homeScreen"):    homeScreenKeyPressed(event, data)
     elif (data.mode == "mainLoop"):    mainLoopKeyPressed(event, data)
+    elif (data.mode == "othello"):     othelloKeyPressed(event, data)
     elif (data.mode == "balloonGame"): balloonGameKeyPressed(event, data)
     elif (data.mode == "help"):        helpKeyPressed(event, data)
 
 def timerFired(data):
     if (data.mode == "homeScreen"):    homeScreenTimerFired(data)
     elif (data.mode == "mainLoop"):    mainLoopTimerFired(data)
+    elif (data.mode == "othello"):     othelloTimerFired(data)
     elif (data.mode == "balloonGame"): balloonGameTimerFired(data)
     elif (data.mode == "help"):        helpTimerFired(data)
 
 def redrawAll(canvas, data):
     if (data.mode == "homeScreen"):    homeScreenRedrawAll(canvas, data)
     elif (data.mode == "mainLoop"):    mainLoopRedrawAll(canvas, data)
+    elif (data.mode == "othello"):     othelloRedrawAll(canvas, data)
     elif (data.mode == "balloonGame"): balloonGameRedrawAll(canvas, data)
     elif (data.mode == "help"):        helpRedrawAll(canvas, data)
 
@@ -124,6 +129,8 @@ def mainLoopKeyPressed(event, data):
     elif (event.keysym == "space"):
         # drawBubble(canvas, data)
         pass
+    elif (event.keysym == "o"):
+        data.mode = "othello"
 
 def mainLoopTimerFired(data):
     pass
@@ -152,14 +159,14 @@ def mainLoopRedrawAll(canvas, data):
     
     Press "i" for general instructions!
     Press "h" to return to the home screen!
-    Press "b" for the balloon game! 
+    Press "b" for the balloon game!
+    Press "o" for game of Othello! 
     '''
     canvas.create_text(data.width/2, data.height*0.8, text=placeholderText)
 
 ####################################
 # balloonGame mode
 ####################################
-# ask how to embed game into a 'mode' (as a another 'frame' in the entire story)
 
 def balloonGameMousePressed(event, data):
     pass
@@ -187,6 +194,36 @@ def balloonGameRedrawAll(canvas, data):
     '''
     canvas.create_text(data.width//2, data.height//2, text=moreText)
 
+####################################
+# othello mode
+####################################
+
+def othelloMousePressed(event, data):
+    pass
+
+def othelloKeyPressed(event, data):
+    if (event.keysym == 'h'):
+        data.mode = "homeScreen"
+    elif (event.keysym == 'i'):
+        data.mode = "help"
+    elif (event.keysym == 'm'):
+        data.mode = "mainLoop"
+
+def othelloTimerFired(data):
+    pass
+
+def othelloRedrawAll(canvas, data):
+    moreText = '''
+    This is where ONE of the games, the balloonGame, will take place!
+    It's based on the Balloon Analog Risk Test (BART), a behavioral test 
+    of risk assessment (Lejuez et al., 2002).
+    
+    Press "i" for general instructions!
+    Press "h" to return to the home screen!
+    Press "m" for the main loop! 
+    '''
+    canvas.create_text(data.width//2, data.height//2, text=moreText)
+    
 
 ####################################
 # use the run function as-is
