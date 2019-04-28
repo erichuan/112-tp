@@ -54,13 +54,70 @@ def drawEvals(canvas, data):
     oftenText = canvas.create_text(data.margin+data.boxWidth/2, data.height*0.85,text="Often")
     alwaysText = canvas.create_text(data.margin+1.5*data.boxWidth, data.height*0.85,text="Always")
 
+def getPrimaryStyle(data):
+    primary = []
+    primaryStyle = []
+    maxScore = 0
+    
+    for style in data.styleValues:
+        if style > maxScore:
+            maxScore = style
+            primary = [maxScore]
+        elif style == maxScore:
+            primary.append(style)
+    
+    if len(primary) == 1:
+        primaryStyle = [data.styles.get(primary[0])]
+    else:
+        for prime in primary:
+            primaryStyle.append(data.styles.get(prime))
+    
+    return primaryStyle
+
+def getLeastStyle(data):
+    least = []
+    leastStyle = []
+    minScore = 1000
+    
+    for style in data.styleValues:
+        if style < minScore:
+            minScore = style
+            least = [minScore]
+        elif style == minScore:
+            least.append(style)
+    
+    if len(least) == 1:
+        leastStyle = [data.styles.get(least[0])]
+    else:
+        for lease in least:
+            leastStyle.append(data.styles.get(lease))
+    
+    return leastStyle
+
 def drawTexts(canvas, data, s, v, height):
     canvas.create_text(data.width/2, data.height*height, text=str(s) + ": " + str(v))
 
 def drawEnding(canvas, data):
-    mainResult = "Your primary style of conflict resolution is: " + str(data.styles.get(max(data.styleValues)))
-    mainResult1 = "Your least likely style is: " + str(data.styles.get(min(data.styleValues)))
+    primaryStyle = getPrimaryStyle(data)
+    leastStyle = getLeastStyle(data)
+    mainResult = "Your primary style of conflict resolution is: "
+    mainResult1 = "Your least likely style is: " 
     subResult = "Here's a breakdown of your results!"
+    styles = ""
+    
+    if len(primaryStyle) == 1:
+        mainResult += str(primaryStyle[0])
+    else:
+        for style in primaryStyle:
+            primestyles += str(primaryStyle[style])
+        mainResult += primestyles
+    
+    if len(leastStyle) == 1:
+        mainResult1 += str(leastStyle[0])
+    else:
+        for style in leastStyle:
+            leasestyles += str(leastStyle[style])
+        mainResult1 += leasestyles
     
     canvas.create_rectangle(0, 0, data.width, data.height,fill='beige', width=0)
     canvas.create_text(data.width/2, data.height/4, text=mainResult)
