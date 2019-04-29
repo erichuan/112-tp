@@ -214,15 +214,23 @@ def othelloTimerFired(data):
 
 def othelloRedrawAll(canvas, data):
     moreText = '''
-    This is where ONE of the games, the balloonGame, will take place!
-    It's based on the Balloon Analog Risk Test (BART), a behavioral test 
-    of risk assessment (Lejuez et al., 2002).
+    The professional world can be like a game of Othello.
+        
+    The professional world can be a competitive place. While teams and the 
+    collective generally allow one to be more effective as well as allow for
+    access to more diverse information, it is important for the individual to
+    be productive assertive themselves. 
+    
+    As such, all incoming employees of 112 Inc. have gone through a game of
+    Othello, not only to train one's strategic mindset but also in the end, if
+    successful to experience the feeling of dominance over the game baord, and
+    if unsuccessful to reflect upon the experience and learn from one's mistakes.
     
     Press "i" for general instructions!
     Press "h" to return to the home screen!
     Press "m" for the main loop! 
     '''
-    canvas.create_text(data.width//2, data.height//2, text=moreText)
+    canvas.create_text(data.width//2, data.height//2, text=moreText, font="Arial 12")
     
 
 ####################################

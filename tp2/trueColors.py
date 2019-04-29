@@ -13,7 +13,7 @@ def mousePressed(event, data):
 def keyPressed(event, data):
     pass
 
-def timerFired(event, data):
+def timerFired(event):
     pass
 
 def redrawAll(canvas, data):
@@ -28,7 +28,7 @@ def run(width=300, height=300):
     def redrawAllWrapper(canvas, data):
         canvas.delete(ALL)
         canvas.create_rectangle(0, 0, data.width, data.height,
-                                fill='beige', width=0)
+                                fill='white', width=0)
         redrawAll(canvas, data)
         canvas.update()    
 
