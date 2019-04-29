@@ -2,10 +2,18 @@
 General animation framework taken from 112 course notes
 '''
 from tkinter import *
-import random
+import random, os
 
 def init(data):
-    pass
+    loadPresidentImages(data) 
+
+def loadPresidentImages(data):
+    data.presidents = ["andy", "cohon", "farnam", "suresh"]
+    data.presidentImages = []
+    for president in data.presidents:
+        filename = "presidents-gifs/%s.gif" % (president)
+        print(filename)
+        data.presidentImages.append(filename)
 
 def mousePressed(event, data):
     pass
@@ -17,7 +25,12 @@ def timerFired(event):
     pass
 
 def redrawAll(canvas, data):
-    pass
+    margin = 10
+    (left, top) = (margin, 40)
+    for president in data.presidents:
+        image = PhotoImage(file=president)
+        canvas.create_image(left, top, image=image)
+        left += image.width() + data.margin
 
 
 ####################################
