@@ -28,6 +28,8 @@ def init(data):
     data.legalMoves = []
     data.whiteChips = []
     data.tmpMoves = []
+    data.help = False
+    data.gameOver = False
     
 def drawBoard(canvas, data):
     for row in range(data.rows):
@@ -221,8 +223,6 @@ def minimize(data):
             countBlackChips(data)
         return bestMove
 
-##
-
 def getAIChips(data):
     whiteChips = []
     for row in range(data.rows):
@@ -250,32 +250,56 @@ def completeBoard(data):
     return True
 
 def gameOver(data):
-    # if entire board filled
-    if completeBoard(data):
-        return True
-    
-    # if both players can't make moves (no legal moves)
-    if ((data.legalMoves == [] and data.player == "black") and 
-        (data.legalMoves == [] and data.player == "white")):
-        return True
+    # if entire board filled or both players can't make moves (no legal moves)
+    if (completeBoard(data) or ((data.legalMoves == [] and data.player == "black") and (data.legalMoves == [] and data.player == "white"))):
+        data.gameOver = not data.gameOver
 
+def drawEndGameMessage(canvas, data):
+    canvas.create_rectangle(data.width/2-50,data.height/2-20,data.width/2+50,data.height/2+20,fill="red")
+    
+    if data.numBlack > data.numWhite:
+        canvas.create_text(data.width/2, data.height/2, text="Black won!",fill="yellow")
+    elif data.numWhite > data.numBlack:
+        canvas.create_text(data.width/2, data.height/2, text="White won!",fill="yellow")
+    else:
+        canvas.create_text(data.width/2, data.height/2, text="It's a tie!'",fill="yellow")
+
+def drawHelp(canvas, data):
+    canvas.create_rectangle(data.width/2-250,data.height/2-50,data.width/2+250,data.height/2+50,fill="red")
+    
+    helpText = '''
+    There might be more here (i.e. AI to give human move suggestions) 
+    
+    Press 'space' to close this window
+    '''
+    canvas.create_text(data.width/2, data.height/2, text=helpText,fill="white")
 
 def mousePressed(event, data):
-    if data.player == "black":
-        move = getHumanMove(event.y, event.x, data)
-        getLegalHumanMoves(data, move[0], move[1])
-        makeMove(data, move)
-        
-    if data.player == "white":
-        chips = getAIChips(data)
-        getLegalAIMoves(data, chips)
-        move = getAIMove(data)
-        makeMove(data, move)
-        
-        data.moves = []
+    gameOver(data)
+    
+    if not data.gameOver:
+        if data.player == "black":
+            move = getHumanMove(event.y, event.x, data)
+            getLegalHumanMoves(data, move[0], move[1])
+            makeMove(data, move)
+            
+        if data.player == "white":
+            chips = getAIChips(data)
+            getLegalAIMoves(data, chips)
+            move = getAIMove(data)
+            makeMove(data, move)
+            
+            data.moves = []
         
 def keyPressed(event, data):
-    pass
+    if event.keysym == "h":
+        data.help = True
+    elif event.keysym == "space":
+        data.help = False
+    elif event.keysym == "e":
+        data.gameOver = not data.gameOver
+    elif event.keysym == "r":
+        init(data)
 
 def timerFired(data):
     pass
@@ -285,8 +309,24 @@ def redrawAll(canvas, data):
     canvas.create_rectangle(data.height,0,data.width,data.height,fill="lime") 
     canvas.create_line(data.height,0,data.height,data.height,fill="black",width=5)
     
+    help1 = '''
+    Press 'h' for help
+    Press 'e' to exit
+    Press 'r' to play again
+    '''
+    canvas.create_text(data.width*0.75+2*data.radius+20,
+                       data.margin+7*data.cellSize+data.radius,text=help1,fill="black")
+    
     drawStartingChips(canvas, data)
     drawScore(canvas, data) 
+    
+    if data.help:
+        drawHelp(canvas, data)
+    else:
+        drawBoard(canvas, data)
+    
+    if data.gameOver:
+        drawEndGameMessage(canvas, data)
  
 
 ####################################

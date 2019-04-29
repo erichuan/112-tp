@@ -103,7 +103,8 @@ def drawEnding(canvas, data):
     mainResult = "Your primary style of conflict resolution is: "
     mainResult1 = "Your least likely style is: " 
     subResult = "Here's a breakdown of your results!"
-    styles = ""
+    primestyles = ""
+    leasetyles = ""
     
     if len(primaryStyle) == 1:
         mainResult += str(primaryStyle[0])
