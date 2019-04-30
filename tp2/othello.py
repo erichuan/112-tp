@@ -4,9 +4,9 @@ General animation framework taken from 112 course notes
 from tkinter import *
 import random
 
-def init(data):
+def othelloInit(data):
     data.rows = data.cols = 8
-    data.margin = 15
+    data.margin = data.width//40
     data.cellSize = (data.height-2*data.margin)//data.rows
     data.board = [([None]*data.cols) for row in range(data.rows)]
     data.radius = data.cellSize * 0.4
@@ -30,6 +30,7 @@ def init(data):
     data.tmpMoves = []
     data.help = False
     data.gameOver = False
+    data.exit = 0
     
 def drawBoard(canvas, data):
     for row in range(data.rows):
@@ -274,7 +275,7 @@ def drawHelp(canvas, data):
     '''
     canvas.create_text(data.width/2, data.height/2, text=helpText,fill="white")
 
-def mousePressed(event, data):
+def othelloMousePressed(event, data):
     gameOver(data)
     
     if not data.gameOver:
@@ -291,20 +292,21 @@ def mousePressed(event, data):
             
             data.moves = []
         
-def keyPressed(event, data):
+def othelloKeyPressed(event, data):
     if event.keysym == "h":
         data.help = True
     elif event.keysym == "space":
         data.help = False
     elif event.keysym == "e":
         data.gameOver = not data.gameOver
+        data.exit += 1
     elif event.keysym == "r":
-        init(data)
+        othelloInit(data)
 
-def timerFired(data):
+def othelloTimerFired(data):
     pass
 
-def redrawAll(canvas, data):
+def othelloRedrawAll(canvas, data):
     drawBoard(canvas, data)
     canvas.create_rectangle(data.height,0,data.width,data.height,fill="lime") 
     canvas.create_line(data.height,0,data.height,data.height,fill="black",width=5)
@@ -312,6 +314,7 @@ def redrawAll(canvas, data):
     help1 = '''
     Press 'h' for help
     Press 'e' to exit
+    Press 'e' again to proceed!
     Press 'r' to play again
     '''
     canvas.create_text(data.width*0.75+2*data.radius+20,
@@ -326,55 +329,57 @@ def redrawAll(canvas, data):
         drawBoard(canvas, data)
     
     if data.gameOver:
-        drawEndGameMessage(canvas, data)
- 
+        drawEndGameMessage(canvas, data) 
+    
+    if data.exit == 2:
+        data.mode = "mainLoop"
 
 ####################################
 # use the run function as-is
 ####################################
 
-def runOthello(width=300, height=300):
-    def redrawAllWrapper(canvas, data):
-        canvas.delete(ALL)
-        canvas.create_rectangle(0, 0, data.width, data.height,
-                                fill='beige', width=0)
-        redrawAll(canvas, data)
-        canvas.update()    
-
-    def mousePressedWrapper(event, canvas, data):
-        mousePressed(event, data)
-        redrawAllWrapper(canvas, data)
-
-    def keyPressedWrapper(event, canvas, data):
-        keyPressed(event, data)
-        redrawAllWrapper(canvas, data)
-
-    def timerFiredWrapper(canvas, data):
-        timerFired(data)
-        redrawAllWrapper(canvas, data)
-        # pause, then call timerFired again
-        canvas.after(data.timerDelay, timerFiredWrapper, canvas, data)
-    # Set up data and call init
-    class Struct(object): pass
-    data = Struct()
-    data.width = width
-    data.height = height
-    data.timerDelay = 100 # milliseconds
-    root = Tk()
-    root.resizable(width=False, height=False) # prevents resizing window
-    init(data)
-    # create the root and the canvas
-    canvas = Canvas(root, width=data.width, height=data.height)
-    canvas.configure(bd=0, highlightthickness=0)
-    canvas.pack()
-    # set up events
-    root.bind("<Button-1>", lambda event:
-                            mousePressedWrapper(event, canvas, data))
-    root.bind("<Key>", lambda event:
-                            keyPressedWrapper(event, canvas, data))
-    timerFiredWrapper(canvas, data)
-    # and launch the app
-    root.mainloop()  # blocks until window is closed
-    print("bye!")
-
-runOthello(600,400)
+# def runOthello(width=300, height=300):
+#     def redrawAllWrapper(canvas, data):
+#         canvas.delete(ALL)
+#         canvas.create_rectangle(0, 0, data.width, data.height,
+#                                 fill='beige', width=0)
+#         othelloRedrawAll(canvas, data)
+#         canvas.update()    
+# 
+#     def mousePressedWrapper(event, canvas, data):
+#         othelloMousePressed(event, data)
+#         redrawAllWrapper(canvas, data)
+# 
+#     def keyPressedWrapper(event, canvas, data):
+#         othelloKeyPressed(event, data)
+#         redrawAllWrapper(canvas, data)
+# 
+#     def timerFiredWrapper(canvas, data):
+#         othelloTimerFired(data)
+#         redrawAllWrapper(canvas, data)
+#         # pause, then call timerFired again
+#         canvas.after(data.timerDelay, timerFiredWrapper, canvas, data)
+#     # Set up data and call init
+#     class Struct(object): pass
+#     data = Struct()
+#     data.width = width
+#     data.height = height
+#     data.timerDelay = 100 # milliseconds
+#     root = Tk()
+#     root.resizable(width=False, height=False) # prevents resizing window
+#     othelloInit(data)
+#     # create the root and the canvas
+#     canvas = Canvas(root, width=data.width, height=data.height)
+#     canvas.configure(bd=0, highlightthickness=0)
+#     canvas.pack()
+#     # set up events
+#     root.bind("<Button-1>", lambda event:
+#                             mousePressedWrapper(event, canvas, data))
+#     root.bind("<Key>", lambda event:
+#                             keyPressedWrapper(event, canvas, data))
+#     timerFiredWrapper(canvas, data)
+#     # and launch the app
+#     root.mainloop()  # blocks until window is closed
+#     print("bye!")
+# 
+# runOthello(600,400)

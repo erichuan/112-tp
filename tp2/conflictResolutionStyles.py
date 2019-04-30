@@ -156,8 +156,8 @@ def drawEnding(canvas, data):
 def init(data):
     data.prompts = prompts
     data.index = 0
-    data.margin = 50
-    data.boxWidth = 150
+    data.margin = data.width//6
+    data.boxWidth = data.width*0.325
     data.collaborating = 0
     data.competing = 0
     data.compromising = 0
@@ -296,4 +296,4 @@ def run(width=300, height=300):
     root.mainloop()  # blocks until window is closed
     print("bye!")
 
-run(400,400)
+run(600,400)

@@ -5,107 +5,113 @@ from tkinter import *
 import random, os
 
 orange1 = '''
-a
-b
-c
-d
+Active
+Lively
+Spontaneous
 '''
 blue1 = '''
-a
-b
-c
-d
+Harmonious
+Compassionate
+Helpful
 '''
 green1 = '''
-a
-b
-c
-d
+Versatile
+Inventive
+Competent
 '''
 gold1 = '''
-a
-b
-c
-d
+Parental
+Traditional
+Responsible
 '''
 orange2 = '''
-a
-b
-c
-d
+Competitive
+Impactful
+Negotiator
 '''
 blue2 = '''
-a
-b
-c
-d
+Positive
+Empathetic
+Communicative
 '''
 green2 = '''
-a
-b
-c
-d
+Curious
+Conceptual
+Knowledgeable
 '''
 gold2 = '''
-a
-b
-c
-d
+Practical
+Sensible
+Dependable
 '''
 orange3 = '''
-a
-b
-c
-d
+Realistic
+Open-minded
+Adventuresome
 '''
 blue3 = '''
-a
-b
-c
-d
+Devoted
+Warm
+Emotional
 '''
 green3 = '''
-a
-b
-c
-d
+Theoretical
+Seeking
+Ingenious
 '''
 gold3 = '''
-a
-b
-c
-d
+Loyal
+Conservative
+Organized
 '''
 orange4 = '''
-a
-b
-c
-d
+Daring
+Impulsive
+Fun
 '''
 blue4 = '''
-a
-b
-c
-d
+Tender
+Inspirational
+Dramatic
 '''
 green4 = '''
-a
-b
-c
-d
+Determined
+Complex
+Composed
 '''
 gold4 = '''
-a
-b
-c
-d
+Concerned
+Procedural
+Cooperative
+'''
+orange5 = '''
+Exciting
+Courageous
+Skillful
+'''
+blue5 = '''
+Vivacious
+Affectionate
+Sympathetic
+'''
+green5 = '''
+Philosophical
+Principled
+Rational
+'''
+gold5 = '''
+Orderly
+Conventional
+Caring
 '''
 
-row1 = [orange1, blue1, green1, gold1]
-row2 = [orange2, blue2, green2, gold2]
-row3 = [orange3, blue3, green3, gold3]
-row4 = [orange4, blue4, green4, gold4]
-trueColors = [row1, row2, row3, row4]
+
+row1 = [orange1, gold1, blue1, green1]
+row2 = [orange2, gold2, blue2, green2]
+row3 = [orange3, gold3, blue3, green3]
+row4 = [orange4, gold4, blue4, green4]
+row5 = [orange5, gold5, blue5, green5]
+trueColors = [row1, row2, row3, row4, row5]
 
 
 def init(data):
@@ -113,6 +119,8 @@ def init(data):
     data.margin = 45
     data.inBetween = 10
     data.trueColors = trueColors
+    data.results = [([0]*4) for i in range(4)]
+    data.tc = 0
 
 def loadPresidentImages(data):
     data.presidents = ["andy", "cohon", "farnam", "subra"]
@@ -121,18 +129,28 @@ def loadPresidentImages(data):
         filename = "presidents-gifs/%s.gif" % (president)
         data.presidentImages.append(PhotoImage(file=filename))
 
-def drawChoices(canvas, data, tc):
+def drawChoices(canvas, data):
     choice1 = canvas.create_rectangle(10, 225, 90,350)
-    canvas.create_text(50, 287.5, text=data.trueColors[tc][0])
+    canvas.create_text(50, 287.5, text=data.trueColors[data.tc][0])
     choice2 = canvas.create_rectangle(100, 225, 190,350)
-    canvas.create_text(145, 287.5, text=data.trueColors[tc][1])
+    canvas.create_text(145, 287.5, text=data.trueColors[data.tc][1])
     choice3 = canvas.create_rectangle(195, 225, 290,350)
-    canvas.create_text(242.5, 287.5, text=data.trueColors[tc][2])
+    canvas.create_text(242.5, 287.5, text=data.trueColors[data.tc][2])
     choice4 = canvas.create_rectangle(300, 225, 390,350)
-    canvas.create_text(345, 287.5, text=data.trueColors[tc][3])
+    canvas.create_text(345, 287.5, text=data.trueColors[data.tc][3])
 
 def mousePressed(event, data):
-    pass
+    if data.tc < len(data.trueColors):
+        if ((10 <= event.x <= 90) and (225 <= event.y <= 350)):
+            data.results[data.tc][0] += 4
+        elif ((100 <= event.x <= 190) and (225 <= event.y <= 350)):
+            data.results[data.tc][1] += 4
+        elif ((195 <= event.x <= 290) and (225 <= event.y <= 350)):
+            data.results[data.tc][2] += 4
+        elif ((300 <= event.x <= 390) and (225 <= event.y <= 350)):
+            data.results[data.tc][3] += 4
+        
+        data.tc += 1
 
 def keyPressed(event, data):
     pass
@@ -146,7 +164,7 @@ def redrawAll(canvas, data):
     farnam = canvas.create_image(data.margin+195, 150, image=data.presidentImages[2])
     subra = canvas.create_image(data.margin+300, 150, image=data.presidentImages[3])
     
-    drawChoices(canvas, data, 0)
+    drawChoices(canvas, data)
     
     
 
@@ -198,4 +216,4 @@ def run(width=300, height=300):
     root.mainloop()  # blocks until window is closed
     print("bye!")
 
-run(400,400)
+run(600,400)

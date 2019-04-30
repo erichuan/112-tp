@@ -18,32 +18,32 @@ def init(data):
 ####################################
 
 def mousePressed(event, data):
-    if (data.mode == "homeScreen"):    homeScreenMousePressed(event, data)
-    elif (data.mode == "mainLoop"):    mainLoopMousePressed(event, data)
-    elif (data.mode == "othello"):     othelloMousePressed(event, data)
-    elif (data.mode == "balloonGame"): balloonGameMousePressed(event, data) 
-    elif (data.mode == "help"):        helpMousePressed(event, data)
+    if (data.mode == "homeScreen"):     homeScreenMousePressed(event, data)
+    elif (data.mode == "mainLoop"):     mainLoopMousePressed(event, data)
+    elif (data.mode == "othello"):      othelloMousePressed(event, data)
+    elif (data.mode == "balloonGame"):  balloonGameMousePressed(event, data) 
+    elif (data.mode == "instructions"): instructionsMousePressed(event, data)
 
 def keyPressed(event, data):
-    if (data.mode == "homeScreen"):    homeScreenKeyPressed(event, data)
-    elif (data.mode == "mainLoop"):    mainLoopKeyPressed(event, data)
-    elif (data.mode == "othello"):     othelloKeyPressed(event, data)
-    elif (data.mode == "balloonGame"): balloonGameKeyPressed(event, data)
-    elif (data.mode == "help"):        helpKeyPressed(event, data)
+    if (data.mode == "homeScreen"):     homeScreenKeyPressed(event, data)
+    elif (data.mode == "mainLoop"):     mainLoopKeyPressed(event, data)
+    elif (data.mode == "othello"):      othelloKeyPressed(event, data)
+    elif (data.mode == "balloonGame"):  balloonGameKeyPressed(event, data)
+    elif (data.mode == "instructions"): instructionsKeyPressed(event, data)
 
 def timerFired(data):
-    if (data.mode == "homeScreen"):    homeScreenTimerFired(data)
-    elif (data.mode == "mainLoop"):    mainLoopTimerFired(data)
-    elif (data.mode == "othello"):     othelloTimerFired(data)
-    elif (data.mode == "balloonGame"): balloonGameTimerFired(data)
-    elif (data.mode == "help"):        helpTimerFired(data)
+    if (data.mode == "homeScreen"):     homeScreenTimerFired(data)
+    elif (data.mode == "mainLoop"):     mainLoopTimerFired(data)
+    elif (data.mode == "othello"):      othelloTimerFired(data)
+    elif (data.mode == "balloonGame"):  balloonGameTimerFired(data)
+    elif (data.mode == "instructions"): instructionsTimerFired(data)
 
 def redrawAll(canvas, data):
-    if (data.mode == "homeScreen"):    homeScreenRedrawAll(canvas, data)
-    elif (data.mode == "mainLoop"):    mainLoopRedrawAll(canvas, data)
-    elif (data.mode == "othello"):     othelloRedrawAll(canvas, data)
-    elif (data.mode == "balloonGame"): balloonGameRedrawAll(canvas, data)
-    elif (data.mode == "help"):        helpRedrawAll(canvas, data)
+    if (data.mode == "homeScreen"):     homeScreenRedrawAll(canvas, data)
+    elif (data.mode == "mainLoop"):     mainLoopRedrawAll(canvas, data)
+    elif (data.mode == "othello"):      othelloRedrawAll(canvas, data)
+    elif (data.mode == "balloonGame"):  balloonGameRedrawAll(canvas, data)
+    elif (data.mode == "instructions"): instructionsRedrawAll(canvas, data)
 
 ####################################
 # homeScreen mode
@@ -54,11 +54,9 @@ def homeScreenMousePressed(event, data):
 
 def homeScreenKeyPressed(event, data):
     if (event.keysym == "i"):
-        data.mode = "help"
+        data.mode = "instructions"
     elif (event.keysym == "m"):
         data.mode = "mainLoop"
-    elif (event.keysym == "b"):
-        data.mode = "balloonGame"
 
 def homeScreenTimerFired(data):
     pass
@@ -76,36 +74,32 @@ def homeScreenRedrawAll(canvas, data):
     
     Press "i" for general instructions!
     Press "m" for the main loop!
-    Press "b" for the balloon game!
     Use spacebar to navigate through the adventure throughout!
     '''
     canvas.create_text(data.width//2, data.height//2, text=homeText,font="Arial 12")
 
 ####################################
-# help mode
+# instructions mode
 ####################################
 
-def helpMousePressed(event, data):
+def instructionsMousePressed(event, data):
     pass
 
-def helpKeyPressed(event, data):
-    if (event.keysym == "h"):
+def instructionsKeyPressed(event, data):
+    if (event.keysym == "b"):
         data.mode = "homeScreen"
     elif (event.keysym == "m"):
         data.mode = "mainLoop"
-    elif (event.keysym == "b"):
-        data.mode = "balloonGame"
 
-def helpTimerFired(data):
+def instructionsTimerFired(data):
     pass
 
-def helpRedrawAll(canvas, data):
+def instructionsRedrawAll(canvas, data):
     helpText = '''
     Welcome to the future of the general instructions page!
     
-    Press "h" to return to home screen
+    Press "b" to return to home screen
     Press "m" for the main loop!
-    Press "b" for the balloon game!
     Use spacebar to navigate through the adventure throughout!
     '''
     canvas.create_text(data.width//2, data.height//2, text=helpText)
@@ -121,15 +115,10 @@ def mainLoopMousePressed(event, data):
     pass
 
 def mainLoopKeyPressed(event, data):
-    if (event.keysym == 'h'):
+    if (event.keysym == 'b'):
         data.mode = "homeScreen"
     elif (event.keysym == 'i'):
-        data.mode = "help"
-    elif (event.keysym == "b"):
-        data.mode = "balloonGame"
-    elif (event.keysym == "space"):
-        # drawBubble(canvas, data)
-        pass
+        data.mode = "instructions"
     elif (event.keysym == "o"):
         data.mode = "othello"
 
@@ -159,9 +148,7 @@ def mainLoopRedrawAll(canvas, data):
     as Eric progresses through TP1, TP2, and TP3.
     
     Press "i" for general instructions!
-    Press "h" to return to the home screen!
-    Press "b" for the balloon game!
-    Press "o" for game of Othello! 
+    Press "o" to proceed! 
     '''
     canvas.create_text(data.width/2, data.height*0.8, text=placeholderText)
 
@@ -173,10 +160,8 @@ def balloonGameMousePressed(event, data):
     pass
 
 def balloonGameKeyPressed(event, data):
-    if (event.keysym == 'h'):
-        data.mode = "homeScreen"
-    elif (event.keysym == 'i'):
-        data.mode = "help"
+    if (event.keysym == 'i'):
+        data.mode = "instructions"
     elif (event.keysym == 'm'):
         data.mode = "mainLoop"
 
@@ -190,7 +175,6 @@ def balloonGameRedrawAll(canvas, data):
     of risk assessment (Lejuez et al., 2002).
     
     Press "i" for general instructions!
-    Press "h" to return to the home screen!
     Press "m" for the main loop! 
     '''
     canvas.create_text(data.width//2, data.height//2, text=moreText)
@@ -199,34 +183,34 @@ def balloonGameRedrawAll(canvas, data):
 # othello mode
 ####################################
 
-def othelloMousePressed(event, data):
-    pass
-
-def othelloKeyPressed(event, data):
-    pass
-
-def othelloTimerFired(data):
-    pass
-
-def othelloRedrawAll(canvas, data):
-    moreText = '''
-    The professional world can be like a game of Othello.
-        
-    The professional world can be a competitive place. While teams and the 
-    collective generally allow one to be more effective as well as allow for
-    access to more diverse information, it is important for the individual to
-    be productive assertive themselves. 
-    
-    As such, all incoming employees of 112 Inc. have gone through a game of
-    Othello, not only to train one's strategic mindset but also in the end, if
-    successful to experience the feeling of dominance over the game baord, and
-    if unsuccessful to reflect upon the experience and learn from one's mistakes.
-    
-    Press "i" for general instructions!
-    Press "a" to return to the home screen!
-    Press "m" for the main loop! 
-    '''
-    canvas.create_text(data.width//2, data.height//2, text=moreText, font="Arial 12")
+# def othelloMousePressed(event, data):
+#     pass
+# 
+# def othelloKeyPressed(event, data):
+#     pass
+# 
+# def othelloTimerFired(data):
+#     pass
+# 
+# def othelloRedrawAll(canvas, data):
+#     moreText = '''
+#     The professional world can be like a game of Othello.
+#         
+#     The professional world can be a competitive place. While teams and the 
+#     collective generally allow one to be more effective as well as allow for
+#     access to more diverse information, it is important for the individual to
+#     be productive assertive themselves. 
+#     
+#     As such, all incoming employees of 112 Inc. have gone through a game of
+#     Othello, not only to train one's strategic mindset but also in the end, if
+#     successful to experience the feeling of dominance over the game baord, and
+#     if unsuccessful to reflect upon the experience and learn from one's mistakes.
+#     
+#     Press "i" for general instructions!
+#     Press "a" to return to the home screen!
+#     Press "m" for the main loop! 
+#     '''
+#     canvas.create_text(data.width//2, data.height//2, text=moreText, font="Arial 12")
     
 
 ####################################
@@ -277,4 +261,4 @@ def run(width=300, height=300):
     root.mainloop()  # blocks until window is closed
     print("bye!")
 
-run(500, 500)
+run(600, 400)
