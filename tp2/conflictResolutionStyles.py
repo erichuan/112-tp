@@ -224,10 +224,7 @@ def mousePressed(event, data):
         data.styles = {"Competing": data.competing, "Collaborating": data.collaborating, "Compromising": data.compromising, "Avoiding":
                         data.avoiding, "Accommodating": data.accommodating}
         data.styleValues = [data.competing, data.collaborating, data.compromising, data.avoiding, data.accommodating]
-        
-        print(data.styles)
-    
-
+            
 def keyPressed(event, data):
     if event.keysym == "r":
         data.caption = True

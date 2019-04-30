@@ -11,6 +11,7 @@ from othello import *
 def init(data):
     # There is only one init, not one-per-mode
     data.mode = "homeScreen"
+    othelloInit(data)
 
 ####################################
 # mode dispatcher
@@ -202,12 +203,7 @@ def othelloMousePressed(event, data):
     pass
 
 def othelloKeyPressed(event, data):
-    if (event.keysym == 'h'):
-        data.mode = "homeScreen"
-    elif (event.keysym == 'i'):
-        data.mode = "help"
-    elif (event.keysym == 'm'):
-        data.mode = "mainLoop"
+    pass
 
 def othelloTimerFired(data):
     pass
@@ -227,7 +223,7 @@ def othelloRedrawAll(canvas, data):
     if unsuccessful to reflect upon the experience and learn from one's mistakes.
     
     Press "i" for general instructions!
-    Press "h" to return to the home screen!
+    Press "a" to return to the home screen!
     Press "m" for the main loop! 
     '''
     canvas.create_text(data.width//2, data.height//2, text=moreText, font="Arial 12")
