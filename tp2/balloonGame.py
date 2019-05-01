@@ -4,13 +4,7 @@ General animation framework taken from animation demo notes
 from tkinter import *
 import random
 
-####################################
-# init
-####################################
-
-def init(data):
-    # There is only one init, not one-per-mode
-    data.mode = "homeScreen"
+def balloonInit(data):
     data.balloon = Balloon(data.width/2, data.height*0.4, 0, 0, 5, 5, 0, [], [], 
                    data.width*0.075, data.width*0.325, data.height*0.79, data.height*0.91, False)
     data.clicks = data.balloon.clicks
@@ -28,94 +22,7 @@ def init(data):
     data.accuracy = []
     data.index = 0
     
-####################################
-# mode dispatcher
-####################################
-
-def mousePressed(event, data):
-    if (data.mode == "homeScreen"):   homeScreenMousePressed(event, data)
-    elif (data.mode == "playGame"):   playGameMousePressed(event, data)
-    elif (data.mode == "help"):       helpMousePressed(event, data)
-
-def keyPressed(event, data):
-    if (data.mode == "homeScreen"):   homeScreenKeyPressed(event, data)
-    elif (data.mode == "playGame"):   playGameKeyPressed(event, data)
-    elif (data.mode == "help"):       helpKeyPressed(event, data)
-
-def timerFired(data):
-    if (data.mode == "homeScreen"):   homeScreenTimerFired(data)
-    elif (data.mode == "playGame"):   playGameTimerFired(data)
-    elif (data.mode == "help"):       helpTimerFired(data)
-
-def redrawAll(canvas, data):
-    if (data.mode == "homeScreen"):   homeScreenRedrawAll(canvas, data)
-    elif (data.mode == "playGame"):   playGameRedrawAll(canvas, data)
-    elif (data.mode == "help"):       helpRedrawAll(canvas, data)
-
-####################################
-# homeScreen mode
-####################################
-
-def homeScreenMousePressed(event, data):
-    if ((data.width*0.375 <= event.x <= data.width*0.625) and 
-        (data.height*0.69 <= event.y <= data.height*0.81)):
-        data.mode = "playGame"
-
-def homeScreenKeyPressed(event, data):
-    if (event.keysym == 'h'):
-        data.mode = "help"
-
-def homeScreenTimerFired(data):
-    pass
-
-def homeScreenRedrawAll(canvas, data):
-    introText = '''
-    Maximize the amount of money you can make 
-    while minimizing the amount of balloons popped!
-    
-    Press "h" for instructions!
-    Press "p" to start pumping!
-    Hit "Start" to start game!
-    '''
-    canvas.create_text(data.width//2, data.height//2, text=introText)
-    
-    # start button
-    canvas.create_rectangle(data.width*0.375, data.height*0.69, 
-                            data.width*0.625, data.height*0.81,
-                            fill="red")
-    canvas.create_text(data.width/2, data.height*0.75,text="Start",
-                       fill="yellow")
-
-####################################
-# help mode
-####################################
-
-def helpMousePressed(event, data):
-    pass
-
-def helpKeyPressed(event, data):
-    if (event.keysym == 'p'):
-        data.mode = "playGame"
-    elif (event.keysym == 'a'):
-        data.mode = "homeScreen"
-
-def helpTimerFired(data):
-    pass
-
-def helpRedrawAll(canvas, data):
-    directionText = '''
-    Hit "Pump" to pump balloon
-    Hit "Collect" to collect earnings so far
-    Press "a" to get back to home screen
-    '''
-    canvas.create_text(data.width//2, data.height//2, text=directionText)
-    
-    
-####################################
-# playGame mode
-####################################
-# ask about (similar to the sequential question), how to loop through balloons until hit 30 balloons
-# also how to 'embed' a 'results' screen and/or popup between each
+# ask how to 'embed' a 'results' screen and/or popup between each
 
 class Balloon(object):
     def __init__(self, cx, cy, hRadius, vRadius, hPlus, vPlus, clicks, clickList, tolerances, 
@@ -170,7 +77,7 @@ class Balloon(object):
 def gameOver(data):
     return data.index >= len(data.tolerance)
 
-def playGameMousePressed(event, data):
+def balloonMousePressed(event, data):
     if not gameOver(data):
         popIndex = data.balloon.tolerances[data.index]
         if not data.balloon.isPopped(popIndex):
@@ -197,14 +104,16 @@ def playGameMousePressed(event, data):
             
             data.index += 1    
 
-def playGameKeyPressed(event, data):
+def balloonKeyPressed(event, data):
     if (event.keysym == 'h'):
         data.mode = "help"
+    elif (event.keysym == 'm'):
+        data.mode = "mainLoop"
 
-def playGameTimerFired(data):
+def balloonTimerFired(data):
     pass
 
-def playGameRedrawAll(canvas, data):
+def balloonRedrawAll(canvas, data):
     # collect button
     canvas.create_rectangle(data.width*0.075, data.height*0.79, 
                             data.width*0.325, data.height*0.91,
@@ -243,53 +152,54 @@ def playGameRedrawAll(canvas, data):
         canvas.create_rectangle(data.width/2-250,data.height/2-100,data.width/2+250,data.height/2+100,fill="red")
         canvas.create_text(data.width/2, data.height/2-20,text="Your total earnings: $%0.2f" % (data.runningTotal), fill="white")
         canvas.create_text(data.width/2, data.height/2,text="You popped %d out of %d balloons" % (data.accuracy.count(0), len(data.accuracy)), fill="white")
+        canvas.create_text(data.width/2, data.height/2+40, text="Press 'm' to return to main loop!",fill="white")
 
 ####################################
 # use the run function as-is
 ####################################
 
-def runBalloonGame(width=300, height=300):
-    def redrawAllWrapper(canvas, data):
-        canvas.delete(ALL)
-        canvas.create_rectangle(0, 0, data.width, data.height,
-                                fill='white', width=0)
-        redrawAll(canvas, data)
-        canvas.update()    
-
-    def mousePressedWrapper(event, canvas, data):
-        mousePressed(event, data)
-        redrawAllWrapper(canvas, data)
-
-    def keyPressedWrapper(event, canvas, data):
-        keyPressed(event, data)
-        redrawAllWrapper(canvas, data)
-
-    def timerFiredWrapper(canvas, data):
-        timerFired(data)
-        redrawAllWrapper(canvas, data)
-        # pause, then call timerFired again
-        canvas.after(data.timerDelay, timerFiredWrapper, canvas, data)
-    # Set up data and call init
-    class Struct(object): pass
-    data = Struct()
-    data.width = width
-    data.height = height
-    data.timerDelay = 100 # milliseconds
-    root = Tk()
-    root.resizable(width=False, height=False) # prevents resizing window
-    init(data)
-    # create the root and the canvas
-    canvas = Canvas(root, width=data.width, height=data.height)
-    canvas.configure(bd=0, highlightthickness=0)
-    canvas.pack()
-    # set up events
-    root.bind("<Button-1>", lambda event:
-                            mousePressedWrapper(event, canvas, data))
-    root.bind("<Key>", lambda event:
-                            keyPressedWrapper(event, canvas, data))
-    timerFiredWrapper(canvas, data)
-    # and launch the app
-    root.mainloop()  # blocks until window is closed
-    print("bye!")
-
-runBalloonGame(800, 600)
+# def runBalloonGame(width=300, height=300):
+#     def redrawAllWrapper(canvas, data):
+#         canvas.delete(ALL)
+#         canvas.create_rectangle(0, 0, data.width, data.height,
+#                                 fill='white', width=0)
+#         balloonRedrawAll(canvas, data)
+#         canvas.update()    
+# 
+#     def mousePressedWrapper(event, canvas, data):
+#         balloonMousePressed(event, data)
+#         redrawAllWrapper(canvas, data)
+# 
+#     def keyPressedWrapper(event, canvas, data):
+#         balloonKeyPressed(event, data)
+#         redrawAllWrapper(canvas, data)
+# 
+#     def timerFiredWrapper(canvas, data):
+#         balloonTimerFired(data)
+#         redrawAllWrapper(canvas, data)
+#         # pause, then call timerFired again
+#         canvas.after(data.timerDelay, timerFiredWrapper, canvas, data)
+#     # Set up data and call init
+#     class Struct(object): pass
+#     data = Struct()
+#     data.width = width
+#     data.height = height
+#     data.timerDelay = 100 # milliseconds
+#     root = Tk()
+#     root.resizable(width=False, height=False) # prevents resizing window
+#     balloonInit(data)
+#     # create the root and the canvas
+#     canvas = Canvas(root, width=data.width, height=data.height)
+#     canvas.configure(bd=0, highlightthickness=0)
+#     canvas.pack()
+#     # set up events
+#     root.bind("<Button-1>", lambda event:
+#                             mousePressedWrapper(event, canvas, data))
+#     root.bind("<Key>", lambda event:
+#                             keyPressedWrapper(event, canvas, data))
+#     timerFiredWrapper(canvas, data)
+#     # and launch the app
+#     root.mainloop()  # blocks until window is closed
+#     print("bye!")
+# 
+# runBalloonGame(600, 400)

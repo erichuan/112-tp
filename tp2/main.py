@@ -4,6 +4,8 @@ Ball bounce code adapted from that of the course notes
 '''
 from tkinter import *
 from othello import *
+from conflictResolutionStyles import *
+from balloonGame import *
 
 ####################################
 # init
@@ -13,9 +15,12 @@ def init(data):
     # There is only one init, not one-per-mode
     data.mode = "landingPage"
     othelloInit(data)
-    loadImages(data)
+    loadmentors(data)
+    winWinWinInit(data)
+    balloonInit(data)
     
     # home page animation
+    loadImages(data)
     data.dwight = data.preparedImages[1]
     data.dwightX = random.randint(data.dwight.width(), data.width - data.dwight.width())
     data.dwightY = random.randint(data.dwight.height(), data.height - data.dwight.height())
@@ -23,6 +28,10 @@ def init(data):
     data.speedY = 2
     data.timerDelay = 20
     data.timer = 0
+    data.refer = False
+    
+    # balloonSplashScreen
+    data.yeet = False
 
 def loadImages(data):
     data.images = ["mscottSHIP", "dwight"]
@@ -36,32 +45,48 @@ def loadImages(data):
 ####################################
 
 def mousePressed(event, data):
-    if (data.mode == "landingPage"):     landingPageMousePressed(event, data)
-    elif (data.mode == "mainScreen"):   mainScreenMousePressed(event, data)
-    elif (data.mode == "mainLoop"):     mainLoopMousePressed(event, data)
-    elif (data.mode == "othello"):      othelloMousePressed(event, data)
-    elif (data.mode == "balloonGame"):  balloonGameMousePressed(event, data) 
+    if (data.mode == "landingPage"):            landingPageMousePressed(event, data)
+    elif (data.mode == "mainScreen"):           mainScreenMousePressed(event, data)
+    elif (data.mode == "mainLoop"):             mainLoopMousePressed(event, data)
+    elif (data.mode == "winSplashScreen"):      winSplashScreenMousePressed(event, data)
+    elif (data.mode == "winWinWin"):            winWinWinMousePressed(event, data)
+    elif (data.mode == "balloonSplashScreen"):  balloonSplashScreenMousePressed(event, data)
+    elif (data.mode == "balloon"):              balloonMousePressed(event, data)
+    elif (data.mode == "othello"):              othelloMousePressed(event, data)
+    elif (data.mode == "balloonGame"):          balloonGameMousePressed(event, data) 
 
 def keyPressed(event, data):
-    if (data.mode == "landingPage"):     landingPageKeyPressed(event, data)
-    elif (data.mode == "mainScreen"):   mainScreenKeyPressed(event, data)
-    elif (data.mode == "mainLoop"):     mainLoopKeyPressed(event, data)
-    elif (data.mode == "othello"):      othelloKeyPressed(event, data)
-    elif (data.mode == "balloonGame"):  balloonGameKeyPressed(event, data)
+    if (data.mode == "landingPage"):            landingPageKeyPressed(event, data)
+    elif (data.mode == "mainScreen"):           mainScreenKeyPressed(event, data)
+    elif (data.mode == "mainLoop"):             mainLoopKeyPressed(event, data)
+    elif (data.mode == "winSplashScreen"):      winSplashScreenKeyPressed(event, data)
+    elif (data.mode == "winWinWin"):            winWinWinKeyPressed(event, data)
+    elif (data.mode == "balloonSplashScreen"):  balloonSplashScreenKeyPressed(event, data)
+    elif (data.mode == "balloon"):              balloonKeyPressed(event, data)
+    elif (data.mode == "othello"):              othelloKeyPressed(event, data)
+    elif (data.mode == "balloonGame"):          balloonGameKeyPressed(event, data)
 
 def timerFired(data):
-    if (data.mode == "landingPage"):     landingPageTimerFired(data)
-    elif (data.mode == "mainScreen"):   mainScreenTimerFired(data)
-    elif (data.mode == "mainLoop"):     mainLoopTimerFired(data)
-    elif (data.mode == "othello"):      othelloTimerFired(data)
-    elif (data.mode == "balloonGame"):  balloonGameTimerFired(data)
+    if (data.mode == "landingPage"):            landingPageTimerFired(data)
+    elif (data.mode == "mainScreen"):           mainScreenTimerFired(data)
+    elif (data.mode == "mainLoop"):             mainLoopTimerFired(data)
+    elif (data.mode == "winSplashScreen"):      winSplashScreenTimerFired(data)
+    elif (data.mode == "winWinWin"):            winWinWinTimerFired(data)
+    elif (data.mode == "balloonSplashScreen"):  balloonSplashScreenTimerFired(data)
+    elif (data.mode == "balloon"):              balloonTimerFired(data)
+    elif (data.mode == "othello"):              othelloTimerFired(data)
+    elif (data.mode == "balloonGame"):          balloonGameTimerFired(data)
 
 def redrawAll(canvas, data):
-    if (data.mode == "landingPage"):     landingPageRedrawAll(canvas, data)
-    elif (data.mode == "mainScreen"):   mainScreenRedrawAll(canvas, data)
-    elif (data.mode == "mainLoop"):     mainLoopRedrawAll(canvas, data)
-    elif (data.mode == "othello"):      othelloRedrawAll(canvas, data)
-    elif (data.mode == "balloonGame"):  balloonGameRedrawAll(canvas, data)
+    if (data.mode == "landingPage"):            landingPageRedrawAll(canvas, data)
+    elif (data.mode == "mainScreen"):           mainScreenRedrawAll(canvas, data)
+    elif (data.mode == "mainLoop"):             mainLoopRedrawAll(canvas, data)
+    elif (data.mode == "winSplashScreen"):      winSplashScreenRedrawAll(canvas, data)
+    elif (data.mode == "winWinWin"):            winWinWinRedrawAll(canvas, data)
+    elif (data.mode == "balloonSplashScreen"):  balloonSplashScreenRedrawAll(canvas, data)
+    elif (data.mode == "balloon"):              balloonRedrawAll(canvas, data)
+    elif (data.mode == "othello"):              othelloRedrawAll(canvas, data)
+    elif (data.mode == "balloonGame"):          balloonGameRedrawAll(canvas, data)
 
 ####################################
 # landingPage mode
@@ -136,7 +161,8 @@ def mainScreenMousePressed(event, data):
         data.mode = "mainLoop"
 
 def mainScreenKeyPressed(event, data):
-    pass
+    if event.keysym == "o":
+        data.mode = "othello"
 
 def mainScreenTimerFired(data):
     pass
@@ -163,66 +189,151 @@ def mainScreenRedrawAll(canvas, data):
 # might be MVC violation since there'll be a draw function in keyPressed?
 
 def mainLoopMousePressed(event, data):
-    pass
+    if ((data.width*.05 <= event.x <= data.width*.4) and 
+        (data.height*.93-15 <= event.y <= data.height*.93+15)):
+        data.refer = True
+    
+    if data.refer == True:
+        if ((data.width*.1 <= event.x <= data.width*.9) and 
+            (data.width*.15 <= event.y <= data.width*.75)):
+            data.refer = False
+    
+    if ((data.width*.36 <= event.x <= data.width*.58) and 
+        (data.height*.75 <= event.y <= data.height*.85)):
+        data.mode = "winSplashScreen"
+    
+    elif ((data.width*.08 <= event.x <= data.width*.3) and 
+          (data.height*.75 <= event.y <= data.height*.85)):
+        data.mode = "balloonSplashScreen"
 
 def mainLoopKeyPressed(event, data):
-    if (event.keysym == 'i'):
-        data.mode = "instructions"
-    elif (event.keysym == "o"):
-        data.mode = "othello"
+    pass
 
 def mainLoopTimerFired(data):
     pass
 
 def mainLoopRedrawAll(canvas, data):
-    canvas.create_rectangle(0,0,data.width, data.height,fill="lime")
-    
-    canvas.create_oval(data.width//5-40, data.height//2-100,
-                       data.width//5+40, data.height//2+100,
-                       fill="black")
+    # background
+    canvas.create_rectangle(0,0,data.width, data.height,fill="azure")
     
     speechbubble1 = '''
-    Today is your first day at 15-112 Inc as our newest intern.
-    We can't wait to meet you, and so do your colleagues as well.
+    Welcome aboard the USS Dunder Mifflin - Leader SHIP!
     
-    Your time during this internship, however, will be challenging.
-    But you will learn new things; you will learn things about yourself.
+    Today is you embark on your first day at the Michael Scott Paper 
+    Company II as our newest intern. We can't wait to meet you, and 
+    so do your colleagues as well.
+    
+    However, unlike past interns (temps) at this company, your time 
+    at this internship will be challenging. You will learn new things; 
+    you will learn things about yourself. And in the end, you will come
+    out the program an 'emerged leader'.
+    
     Without further ado, let's begin!
     '''
-    canvas.create_text(data.width//2, data.height//4, text=speechbubble1)
+    canvas.create_text(data.width//2, data.height//3, text=speechbubble1)
     
-    placeholderText = '''
-    # This will be the bulk of the adventure will take place. There will be
-    animations, games, and other fun stuff. Maybe there'll be a maze? We'll see
-    as Eric progresses through TP1, TP2, and TP3.
+    # buttons
+    riskButton = canvas.create_rectangle(data.width*.08, data.height*.75, data.width*.3, data.height*.85, fill="red")
+    canvas.create_text(data.width*.19, data.height*.8, text="DARE TO TAKE RISKS", fill="white", font="Arial 11")
     
-    Press "i" for general instructions!
-    Press "o" to proceed! 
-    '''
-    canvas.create_text(data.width/2, data.height*0.8, text=placeholderText)
-
+    resolveButton = canvas.create_rectangle(data.width*.36, data.height*.75, data.width*.58, data.height*.85, fill="green")
+    canvas.create_text(data.width*.47, data.height*.8, text="MEND THE WOUNDS", fill="white", font="Arial 11")
+    
+    trueColorsButton = canvas.create_rectangle(data.width*.64, data.height*.75, data.width*.86, data.height*.85, fill="blue")
+    canvas.create_text(data.width*.75, data.height*.8, text="FIND YOUR TRUE COLORS", fill="white", font="Arial 9")
+    
+    # references
+    canvas.create_rectangle(data.width*.05, data.height*.93-15, data.width*.2, data.height*.93+15, fill="yellow")
+    canvas.create_text(data.width*.12, data.height*.93, text="References")
+    
+    if data.refer == True:
+        references = '''
+        The following activities are based on existing leadership/personality 
+        assessments based on organizational behavior theory.
+        
+        "Dare to Take Risks": Balloon Analog Risk Test (BART), behavioral test 
+        of risk assessment (Lejuez et al., 2002)
+        
+        "Mend the Wounds": Conflict Management Styles Assessment,
+        “Conflict and Negotiation Processes in Organizations”
+        
+        "Find your True Colors": Don Lowry's "True Colors" Personality Assessment
+        (1978) and based on Carnegie Mellon's Emerging Leaders version of 
+        "True Colors" activity
+        '''
+        canvas.create_rectangle(data.width*.1, data.height*.15, data.width*.9, data.height*.75, fill="yellow")
+        canvas.create_text(data.width/2, data.height*.45, text=references, font="Arial 11")
+        
 ####################################
-# balloonGame mode
+# winSplashScreen mode
 ####################################
+def loadmentors(data):
+    data.mentorLst = ["resolute", "michaelPhyllis", "elmentors"]
+    data.preparedMentors = []
+    for img in data.mentorLst:
+        filename = "%s.gif" % (img)
+        data.preparedMentors.append(PhotoImage(file=filename))
 
-def balloonGameMousePressed(event, data):
+def winSplashScreenMousePressed(event, data):
+    if ((data.width*.4 <= event.x <= data.width*.6) and (data.height/2-15 <= event.y <= data.height/2+15)):
+        data.mode = "winWinWin"
+
+def winSplashScreenKeyPressed(event, data):
     pass
 
-def balloonGameKeyPressed(event, data):
-    if (event.keysym == 'i'):
-        data.mode = "instructions"
-
-def balloonGameTimerFired(data):
+def winSplashScreenTimerFired(data):
     pass
 
-def balloonGameRedrawAll(canvas, data):
-    moreText = '''
-    This is where ONE of the games, the balloonGame, will take place!
-    It's based on the Balloon Analog Risk Test (BART), a behavioral test 
-    of risk assessment (Lejuez et al., 2002).
+def winSplashScreenRedrawAll(canvas, data):
+    # background
+    canvas.create_rectangle(0,0,data.width,data.height,fill="beige")
     
+    # title
+    canvas.create_rectangle(data.width/5,data.height/10,data.width*.8,data.height*.4,fill="lime")
+    canvas.create_text(data.width/2, data.height/4, text="What's your conflict resolution style?", fill="blue", font="Arial 18 bold")
+    
+    canvas.create_image(data.width*.15, data.height*.75, image=data.preparedMentors[0])
+    canvas.create_image(data.width/2, data.height*.75, image=data.preparedMentors[1])
+    canvas.create_image(data.width*.85, data.height*.75, image=data.preparedMentors[2])
+    
+    # start button
+    canvas.create_rectangle(data.width*.4, data.height/2-15, data.width*.6, data.height/2+15, fill="red")
+    canvas.create_text(data.width/2, data.height/2, text="Start", fill="white")
+
+####################################
+# balloonSplashScreen mode
+####################################
+def balloonSplashScreenMousePressed(event, data):
+    if ((data.width*0.375 <= event.x <= data.width*0.625) and 
+        (data.height*0.69 <= event.y <= data.height*0.81)):
+        data.mode = "balloon"
+
+def balloonSplashScreenKeyPressed(event, data):
+    if event.keysym == "m":
+        data.mode = "mainLoop"
+
+def balloonSplashScreenTimerFired(data):
+    pass
+
+def balloonSplashScreenRedrawAll(canvas, data):
+    introText = '''
+    Maximize the amount of money you can make 
+    while minimizing the amount of balloons popped!
+    
+    You only earn points for "realized" gains, meaning the
+    balloon does not pop.
+    
+    Hit "Start" to start game!
+    Good luck!
     '''
-    canvas.create_text(data.width//2, data.height//2, text=moreText)
+    canvas.create_text(data.width/2, data.height*.4, text=introText)
+    
+    # start button
+    canvas.create_rectangle(data.width*0.375, data.height*0.69, 
+                            data.width*0.625, data.height*0.81,
+                            fill="red")
+    canvas.create_text(data.width/2, data.height*0.75,text="Start",
+                       fill="yellow")
 
 ####################################
 # othello mode

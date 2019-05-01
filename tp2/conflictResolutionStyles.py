@@ -2,8 +2,6 @@
 General animation framework taken from 112 course notes
 '''
 from tkinter import *
-import random
-
 
 prompt1 = "I enjoy digging into the issues to find solutions that work for everybody"
 prompt2 = "I do my best to negotiate a “give-and-take” approach to conflict"
@@ -65,6 +63,8 @@ which is based on “Conflict and Negotiation Processes in Organizations”
 by K. Thomas in M. D. Dunnette and L. M. Hough (eds.), Handbook of Industrial 
 and Organizational Psychology, 2/e, vol. 3 (Palo Alto, CA: Consulting 
 Psychologists Press, 1992), 668.
+
+Press 'space' to close citations
 '''
             
 def drawQuestion(canvas, data):
@@ -152,8 +152,9 @@ def drawEnding(canvas, data):
     canvas.create_text(data.width/2, data.height*0.72, text=styleAnalysis, font="Arial 10")
     canvas.create_text(data.width*0.75, data.height*0.92, text="Press 'a' to try again", font="Arial 10")
     canvas.create_text(data.width*0.75, data.height*0.95, text="Press 'r' for references", font="Arial 10")
+    canvas.create_text(data.width*0.75, data.height*0.98, text="Press 'm' to return to main loop", font="Arial 10")
 
-def init(data):
+def winWinWinInit(data):
     data.prompts = prompts
     data.index = 0
     data.margin = data.width//6
@@ -169,7 +170,7 @@ def init(data):
     data.caption = False
     data.styleAnalyses = {"Competing": competingText, "Collaborating": collaboratingText, "Compromising": compromisingText, "Avoiding": avoidingText, "Accommodating": accommodatingText}
 
-def mousePressed(event, data):
+def winWinWinMousePressed(event, data):
     if data.index < len(data.prompts)-1:
         if ((data.index == 1) or (data.index == 5) or (data.index == 7)):
             if ((data.margin <= event.x <= (data.margin+data.boxWidth)) and (data.height*0.7 <= event.y <= data.height*0.8)): 
@@ -225,18 +226,21 @@ def mousePressed(event, data):
                         data.avoiding, "Accommodating": data.accommodating}
         data.styleValues = [data.competing, data.collaborating, data.compromising, data.avoiding, data.accommodating]
             
-def keyPressed(event, data):
+def winWinWinKeyPressed(event, data):
     if event.keysym == "r":
         data.caption = True
     elif event.keysym == "space":
         data.caption = False
     elif event.keysym == "a":
-        init(data)
+        winWinWinInit(data)
+    elif event.keysym == "m":
+        data.mode = "mainLoop"
 
-def timerFired(data):
+def winWinWinTimerFired(data):
     pass
 
-def redrawAll(canvas, data):
+def winWinWinRedrawAll(canvas, data):
+    canvas.create_rectangle(0,0,data.width,data.height,fill="beige")
     drawQuestion(canvas, data)
     drawEvals(canvas, data)
     
@@ -252,48 +256,48 @@ def redrawAll(canvas, data):
 # use the run function as-is
 ####################################
 
-def run(width=300, height=300):
-    def redrawAllWrapper(canvas, data):
-        canvas.delete(ALL)
-        canvas.create_rectangle(0, 0, data.width, data.height,
-                                fill='beige', width=0)
-        redrawAll(canvas, data)
-        canvas.update()    
-
-    def mousePressedWrapper(event, canvas, data):
-        mousePressed(event, data)
-        redrawAllWrapper(canvas, data)
-
-    def keyPressedWrapper(event, canvas, data):
-        keyPressed(event, data)
-        redrawAllWrapper(canvas, data)
-
-    def timerFiredWrapper(canvas, data):
-        timerFired(data)
-        redrawAllWrapper(canvas, data)
-        # pause, then call timerFired again
-        canvas.after(data.timerDelay, timerFiredWrapper, canvas, data)
-    # Set up data and call init
-    class Struct(object): pass
-    data = Struct()
-    data.width = width
-    data.height = height
-    data.timerDelay = 100 # milliseconds
-    root = Tk()
-    root.resizable(width=False, height=False) # prevents resizing window
-    init(data)
-    # create the root and the canvas
-    canvas = Canvas(root, width=data.width, height=data.height)
-    canvas.configure(bd=0, highlightthickness=0)
-    canvas.pack()
-    # set up events
-    root.bind("<Button-1>", lambda event:
-                            mousePressedWrapper(event, canvas, data))
-    root.bind("<Key>", lambda event:
-                            keyPressedWrapper(event, canvas, data))
-    timerFiredWrapper(canvas, data)
-    # and launch the app
-    root.mainloop()  # blocks until window is closed
-    print("bye!")
-
-run(600,400)
+# def run(width=300, height=300):
+#     def redrawAllWrapper(canvas, data):
+#         canvas.delete(ALL)
+#         canvas.create_rectangle(0, 0, data.width, data.height,
+#                                 fill='beige', width=0)
+#         winWinWinRedrawAll(canvas, data)
+#         canvas.update()    
+# 
+#     def mousePressedWrapper(event, canvas, data):
+#         winWinWinMousePressed(event, data)
+#         redrawAllWrapper(canvas, data)
+# 
+#     def keyPressedWrapper(event, canvas, data):
+#         winWinWinKeyPressed(event, data)
+#         redrawAllWrapper(canvas, data)
+# 
+#     def timerFiredWrapper(canvas, data):
+#         winWinWinTimerFired(data)
+#         redrawAllWrapper(canvas, data)
+#         # pause, then call timerFired again
+#         canvas.after(data.timerDelay, timerFiredWrapper, canvas, data)
+#     # Set up data and call init
+#     class Struct(object): pass
+#     data = Struct()
+#     data.width = width
+#     data.height = height
+#     data.timerDelay = 100 # milliseconds
+#     root = Tk()
+#     root.resizable(width=False, height=False) # prevents resizing window
+#     winWinWinInit(data)
+#     # create the root and the canvas
+#     canvas = Canvas(root, width=data.width, height=data.height)
+#     canvas.configure(bd=0, highlightthickness=0)
+#     canvas.pack()
+#     # set up events
+#     root.bind("<Button-1>", lambda event:
+#                             mousePressedWrapper(event, canvas, data))
+#     root.bind("<Key>", lambda event:
+#                             keyPressedWrapper(event, canvas, data))
+#     timerFiredWrapper(canvas, data)
+#     # and launch the app
+#     root.mainloop()  # blocks until window is closed
+#     print("bye!")
+# 
+# run(600,400)

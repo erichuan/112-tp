@@ -6,7 +6,7 @@ import random
 
 def othelloInit(data):
     data.rows = data.cols = 8
-    data.margin = data.width//40
+    data.margin = 15
     data.cellSize = (data.height-2*data.margin)//data.rows
     data.board = [([None]*data.cols) for row in range(data.rows)]
     data.radius = data.cellSize * 0.4
@@ -302,6 +302,8 @@ def othelloKeyPressed(event, data):
         data.exit += 1
     elif event.keysym == "r":
         othelloInit(data)
+    elif event.keysym == "m":
+        data.mode = "mainLoop"
 
 def othelloTimerFired(data):
     pass
@@ -316,6 +318,7 @@ def othelloRedrawAll(canvas, data):
     Press 'e' to exit
     Press 'e' again to proceed!
     Press 'r' to play again
+    Press 'm' to return to main loop!
     '''
     canvas.create_text(data.width*0.75+2*data.radius+20,
                        data.margin+7*data.cellSize+data.radius,text=help1,fill="black")
