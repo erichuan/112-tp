@@ -114,7 +114,7 @@ row5 = [orange5, gold5, blue5, green5]
 trueColors = [row1, row2, row3, row4, row5]
 
 
-def init(data):
+def trueColorsInit(data):
     loadPresidentImages(data) 
     data.margin = data.width//5
     data.inBetween = data.margin/6
@@ -169,8 +169,8 @@ def drawChoices(canvas, data):
     data.choice4.drawBoxes(canvas, None)
     data.choice4.drawText(canvas, data.trueColors[data.tc][3])
 
-def mousePressed(event, data):
-    if data.choice1.isClicked(event.x, event.y) and :
+def trueColorsMousePressed(event, data):
+    if data.choice1.isClicked(event.x, event.y):
         data.tmpLst.append(0)
     elif data.choice2.isClicked(event.x, event.y):
         data.tmpLst.append(1)
@@ -192,13 +192,14 @@ def mousePressed(event, data):
     
     print(data.results)
 
-def keyPressed(event, data):
+def trueColorsKeyPressed(event, data):
+    if event.keysym == "m":
+        data.mode = "mainLoop"
+
+def trueColorsTimerFired(event):
     pass
 
-def timerFired(event):
-    pass
-
-def redrawAll(canvas, data):
+def trueColorsRedrawAll(canvas, data):
     andy = canvas.create_image(data.margin+10, data.height/4, image=data.presidentImages[0])
     cohon = canvas.create_image(data.margin+100, data.height/4, image=data.presidentImages[1])
     farnam = canvas.create_image(data.margin+195, data.height/4, image=data.presidentImages[2])
@@ -206,54 +207,53 @@ def redrawAll(canvas, data):
     
     drawChoices(canvas, data)
     
-    
 
 ####################################
 # use the run function as-is
 ####################################
 
-def run(width=300, height=300):
-    def redrawAllWrapper(canvas, data):
-        canvas.delete(ALL)
-        canvas.create_rectangle(0, 0, data.width, data.height,
-                                fill='white', width=0)
-        redrawAll(canvas, data)
-        canvas.update()    
-
-    def mousePressedWrapper(event, canvas, data):
-        mousePressed(event, data)
-        redrawAllWrapper(canvas, data)
-
-    def keyPressedWrapper(event, canvas, data):
-        keyPressed(event, data)
-        redrawAllWrapper(canvas, data)
-
-    def timerFiredWrapper(canvas, data):
-        timerFired(data)
-        redrawAllWrapper(canvas, data)
-        # pause, then call timerFired again
-        canvas.after(data.timerDelay, timerFiredWrapper, canvas, data)
-    # Set up data and call init
-    class Struct(object): pass
-    data = Struct()
-    data.width = width
-    data.height = height
-    data.timerDelay = 100 # milliseconds
-    root = Tk()
-    root.resizable(width=False, height=False) # prevents resizing window
-    init(data)
-    # create the root and the canvas
-    canvas = Canvas(root, width=data.width, height=data.height)
-    canvas.configure(bd=0, highlightthickness=0)
-    canvas.pack()
-    # set up events
-    root.bind("<Button-1>", lambda event:
-                            mousePressedWrapper(event, canvas, data))
-    root.bind("<Key>", lambda event:
-                            keyPressedWrapper(event, canvas, data))
-    timerFiredWrapper(canvas, data)
-    # and launch the app
-    root.mainloop()  # blocks until window is closed
-    print("bye!")
-
-run(600,400)
+# def run(width=300, height=300):
+#     def redrawAllWrapper(canvas, data):
+#         canvas.delete(ALL)
+#         canvas.create_rectangle(0, 0, data.width, data.height,
+#                                 fill='white', width=0)
+#         redrawAll(canvas, data)
+#         canvas.update()    
+# 
+#     def mousePressedWrapper(event, canvas, data):
+#         mousePressed(event, data)
+#         redrawAllWrapper(canvas, data)
+# 
+#     def keyPressedWrapper(event, canvas, data):
+#         keyPressed(event, data)
+#         redrawAllWrapper(canvas, data)
+# 
+#     def timerFiredWrapper(canvas, data):
+#         timerFired(data)
+#         redrawAllWrapper(canvas, data)
+#         # pause, then call timerFired again
+#         canvas.after(data.timerDelay, timerFiredWrapper, canvas, data)
+#     # Set up data and call init
+#     class Struct(object): pass
+#     data = Struct()
+#     data.width = width
+#     data.height = height
+#     data.timerDelay = 100 # milliseconds
+#     root = Tk()
+#     root.resizable(width=False, height=False) # prevents resizing window
+#     init(data)
+#     # create the root and the canvas
+#     canvas = Canvas(root, width=data.width, height=data.height)
+#     canvas.configure(bd=0, highlightthickness=0)
+#     canvas.pack()
+#     # set up events
+#     root.bind("<Button-1>", lambda event:
+#                             mousePressedWrapper(event, canvas, data))
+#     root.bind("<Key>", lambda event:
+#                             keyPressedWrapper(event, canvas, data))
+#     timerFiredWrapper(canvas, data)
+#     # and launch the app
+#     root.mainloop()  # blocks until window is closed
+#     print("bye!")
+# 
+# run(600,400)

@@ -6,6 +6,7 @@ from tkinter import *
 from othello import *
 from conflictResolutionStyles import *
 from balloonGame import *
+from trueColors import *
 
 ####################################
 # init
@@ -18,6 +19,7 @@ def init(data):
     loadmentors(data)
     winWinWinInit(data)
     balloonInit(data)
+    trueColorsInit(data)
     
     # home page animation
     loadImages(data)
@@ -53,7 +55,7 @@ def mousePressed(event, data):
     elif (data.mode == "balloonSplashScreen"):  balloonSplashScreenMousePressed(event, data)
     elif (data.mode == "balloon"):              balloonMousePressed(event, data)
     elif (data.mode == "othello"):              othelloMousePressed(event, data)
-    elif (data.mode == "balloonGame"):          balloonGameMousePressed(event, data) 
+    elif (data.mode == "trueColors"):           trueColorsMousePressed(event, data) 
 
 def keyPressed(event, data):
     if (data.mode == "landingPage"):            landingPageKeyPressed(event, data)
@@ -64,7 +66,7 @@ def keyPressed(event, data):
     elif (data.mode == "balloonSplashScreen"):  balloonSplashScreenKeyPressed(event, data)
     elif (data.mode == "balloon"):              balloonKeyPressed(event, data)
     elif (data.mode == "othello"):              othelloKeyPressed(event, data)
-    elif (data.mode == "balloonGame"):          balloonGameKeyPressed(event, data)
+    elif (data.mode == "trueColors"):           trueColorsKeyPressed(event, data)
 
 def timerFired(data):
     if (data.mode == "landingPage"):            landingPageTimerFired(data)
@@ -75,7 +77,7 @@ def timerFired(data):
     elif (data.mode == "balloonSplashScreen"):  balloonSplashScreenTimerFired(data)
     elif (data.mode == "balloon"):              balloonTimerFired(data)
     elif (data.mode == "othello"):              othelloTimerFired(data)
-    elif (data.mode == "balloonGame"):          balloonGameTimerFired(data)
+    elif (data.mode == "trueColors"):           trueColorsTimerFired(data)
 
 def redrawAll(canvas, data):
     if (data.mode == "landingPage"):            landingPageRedrawAll(canvas, data)
@@ -86,7 +88,7 @@ def redrawAll(canvas, data):
     elif (data.mode == "balloonSplashScreen"):  balloonSplashScreenRedrawAll(canvas, data)
     elif (data.mode == "balloon"):              balloonRedrawAll(canvas, data)
     elif (data.mode == "othello"):              othelloRedrawAll(canvas, data)
-    elif (data.mode == "balloonGame"):          balloonGameRedrawAll(canvas, data)
+    elif (data.mode == "trueColors"):           trueColorsRedrawAll(canvas, data)
 
 ####################################
 # landingPage mode
@@ -161,8 +163,7 @@ def mainScreenMousePressed(event, data):
         data.mode = "mainLoop"
 
 def mainScreenKeyPressed(event, data):
-    if event.keysym == "o":
-        data.mode = "othello"
+    pass
 
 def mainScreenTimerFired(data):
     pass
@@ -205,9 +206,14 @@ def mainLoopMousePressed(event, data):
     elif ((data.width*.08 <= event.x <= data.width*.3) and 
           (data.height*.75 <= event.y <= data.height*.85)):
         data.mode = "balloonSplashScreen"
+    
+    elif ((data.width*.64 <= event.x <= data.width*.86) and 
+          (data.height*.75 <= event.y <= data.height*.85)):
+        data.mode = "trueColors"
 
 def mainLoopKeyPressed(event, data):
-    pass
+    if event.keysym == "o":
+        data.mode = "othello"
 
 def mainLoopTimerFired(data):
     pass
