@@ -116,11 +116,16 @@ trueColors = [row1, row2, row3, row4, row5]
 
 def init(data):
     loadPresidentImages(data) 
-    data.margin = 45
-    data.inBetween = 10
+    data.margin = data.width//5
+    data.inBetween = data.margin/6
     data.trueColors = trueColors
-    data.results = [([0]*4) for i in range(4)]
+    data.results = [([None]*4) for i in range(5)]
     data.tc = 0
+    data.choice1 = Choice(90, 175, 170, 300)
+    data.choice2 = Choice(190, 175, 260, 300)
+    data.choice3 = Choice(280, 175, 360, 300)
+    data.choice4 = Choice(380, 175, 460, 300)
+    data.tmpLst = []
 
 def loadPresidentImages(data):
     data.presidents = ["andy", "cohon", "farnam", "subra"]
@@ -128,29 +133,64 @@ def loadPresidentImages(data):
     for president in data.presidents:
         filename = "presidents-gifs/%s.gif" % (president)
         data.presidentImages.append(PhotoImage(file=filename))
+        
+class Choice(object):
+    def __init__(self, left, top, right, bottom):
+        self.left = left
+        self.top = top
+        self.right = right
+        self.bottom = bottom
+    
+    def drawBoxes(self, canvas, color):
+        self.color = color
+        canvas.create_rectangle(self.left, self.top, self.right, self.bottom, fill=self.color)
+    
+    def drawText(self, canvas, text):
+        self.text = text
+        midpt1 = (self.right-self.left)/2
+        midpt2 = (self.bottom-self.top)/2
+        canvas.create_text(self.left+midpt1, self.top+midpt2,text=self.text, font="Arial 12")
+    
+    def isClicked(self, x, y):
+        self.x = x
+        self.y = y
+        return (self.left <= x <= self.right) and (self.top <= y <= self.bottom)
 
 def drawChoices(canvas, data):
-    choice1 = canvas.create_rectangle(10, 225, 90,350)
-    canvas.create_text(50, 287.5, text=data.trueColors[data.tc][0])
-    choice2 = canvas.create_rectangle(100, 225, 190,350)
-    canvas.create_text(145, 287.5, text=data.trueColors[data.tc][1])
-    choice3 = canvas.create_rectangle(195, 225, 290,350)
-    canvas.create_text(242.5, 287.5, text=data.trueColors[data.tc][2])
-    choice4 = canvas.create_rectangle(300, 225, 390,350)
-    canvas.create_text(345, 287.5, text=data.trueColors[data.tc][3])
+    data.choice1.drawBoxes(canvas, None)
+    data.choice1.drawText(canvas, data.trueColors[data.tc][0])
+    
+    data.choice2.drawBoxes(canvas, None)
+    data.choice2.drawText(canvas, data.trueColors[data.tc][1])
+
+    data.choice3.drawBoxes(canvas, None)
+    data.choice3.drawText(canvas, data.trueColors[data.tc][2])
+    
+    data.choice4.drawBoxes(canvas, None)
+    data.choice4.drawText(canvas, data.trueColors[data.tc][3])
 
 def mousePressed(event, data):
-    if data.tc < len(data.trueColors):
-        if ((10 <= event.x <= 90) and (225 <= event.y <= 350)):
-            data.results[data.tc][0] += 4
-        elif ((100 <= event.x <= 190) and (225 <= event.y <= 350)):
-            data.results[data.tc][1] += 4
-        elif ((195 <= event.x <= 290) and (225 <= event.y <= 350)):
-            data.results[data.tc][2] += 4
-        elif ((300 <= event.x <= 390) and (225 <= event.y <= 350)):
-            data.results[data.tc][3] += 4
-        
+    if data.choice1.isClicked(event.x, event.y) and :
+        data.tmpLst.append(0)
+    elif data.choice2.isClicked(event.x, event.y):
+        data.tmpLst.append(1)
+    elif data.choice3.isClicked(event.x, event.y):
+        data.tmpLst.append(2)
+    elif data.choice4.isClicked(event.x, event.y):
+        data.tmpLst.append(3)
+    
+    num = 4
+    for item in data.tmpLst:
+        data.results[data.tc][item] = num
+        num -= 1
+    
+    num = 4
+    
+    if ((None not in data.results[data.tc]) and (data.tc < len(data.trueColors))):
         data.tc += 1
+        
+    
+    print(data.results)
 
 def keyPressed(event, data):
     pass
@@ -159,10 +199,10 @@ def timerFired(event):
     pass
 
 def redrawAll(canvas, data):
-    andy = canvas.create_image(data.margin+10, 150, image=data.presidentImages[0])
-    cohon = canvas.create_image(data.margin+100, 150, image=data.presidentImages[1])
-    farnam = canvas.create_image(data.margin+195, 150, image=data.presidentImages[2])
-    subra = canvas.create_image(data.margin+300, 150, image=data.presidentImages[3])
+    andy = canvas.create_image(data.margin+10, data.height/4, image=data.presidentImages[0])
+    cohon = canvas.create_image(data.margin+100, data.height/4, image=data.presidentImages[1])
+    farnam = canvas.create_image(data.margin+195, data.height/4, image=data.presidentImages[2])
+    subra = canvas.create_image(data.margin+300, data.height/4, image=data.presidentImages[3])
     
     drawChoices(canvas, data)
     

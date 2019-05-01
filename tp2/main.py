@@ -1,5 +1,6 @@
 '''
 General animation framework taken from animation demo notes
+Ball bounce code adapted from that of the course notes
 '''
 from tkinter import *
 from othello import *
@@ -10,58 +11,108 @@ from othello import *
 
 def init(data):
     # There is only one init, not one-per-mode
-    data.mode = "homeScreen"
+    data.mode = "landingPage"
     othelloInit(data)
+    loadImages(data)
+    
+    # home page animation
+    data.dwight = data.preparedImages[1]
+    data.dwightX = random.randint(data.dwight.width(), data.width - data.dwight.width())
+    data.dwightY = random.randint(data.dwight.height(), data.height - data.dwight.height())
+    data.speedX = 2
+    data.speedY = 2
+    data.timerDelay = 20
+    data.timer = 0
+
+def loadImages(data):
+    data.images = ["mscottSHIP", "dwight"]
+    data.preparedImages = []
+    for img in data.images:
+        filename = "%s.gif" % (img)
+        data.preparedImages.append(PhotoImage(file=filename))
 
 ####################################
 # mode dispatcher
 ####################################
 
 def mousePressed(event, data):
-    if (data.mode == "homeScreen"):     homeScreenMousePressed(event, data)
+    if (data.mode == "landingPage"):     landingPageMousePressed(event, data)
+    elif (data.mode == "mainScreen"):   mainScreenMousePressed(event, data)
     elif (data.mode == "mainLoop"):     mainLoopMousePressed(event, data)
     elif (data.mode == "othello"):      othelloMousePressed(event, data)
     elif (data.mode == "balloonGame"):  balloonGameMousePressed(event, data) 
-    elif (data.mode == "instructions"): instructionsMousePressed(event, data)
 
 def keyPressed(event, data):
-    if (data.mode == "homeScreen"):     homeScreenKeyPressed(event, data)
+    if (data.mode == "landingPage"):     landingPageKeyPressed(event, data)
+    elif (data.mode == "mainScreen"):   mainScreenKeyPressed(event, data)
     elif (data.mode == "mainLoop"):     mainLoopKeyPressed(event, data)
     elif (data.mode == "othello"):      othelloKeyPressed(event, data)
     elif (data.mode == "balloonGame"):  balloonGameKeyPressed(event, data)
-    elif (data.mode == "instructions"): instructionsKeyPressed(event, data)
 
 def timerFired(data):
-    if (data.mode == "homeScreen"):     homeScreenTimerFired(data)
+    if (data.mode == "landingPage"):     landingPageTimerFired(data)
+    elif (data.mode == "mainScreen"):   mainScreenTimerFired(data)
     elif (data.mode == "mainLoop"):     mainLoopTimerFired(data)
     elif (data.mode == "othello"):      othelloTimerFired(data)
     elif (data.mode == "balloonGame"):  balloonGameTimerFired(data)
-    elif (data.mode == "instructions"): instructionsTimerFired(data)
 
 def redrawAll(canvas, data):
-    if (data.mode == "homeScreen"):     homeScreenRedrawAll(canvas, data)
+    if (data.mode == "landingPage"):     landingPageRedrawAll(canvas, data)
+    elif (data.mode == "mainScreen"):   mainScreenRedrawAll(canvas, data)
     elif (data.mode == "mainLoop"):     mainLoopRedrawAll(canvas, data)
     elif (data.mode == "othello"):      othelloRedrawAll(canvas, data)
     elif (data.mode == "balloonGame"):  balloonGameRedrawAll(canvas, data)
-    elif (data.mode == "instructions"): instructionsRedrawAll(canvas, data)
 
 ####################################
-# homeScreen mode
+# landingPage mode
 ####################################
 
-def homeScreenMousePressed(event, data):
+def landingPageMousePressed(event, data):
+    if ((data.width*.4 <= event.x <= data.width*.6) and (data.height*.6 <= event.y <= data.height*.7)):
+        data.mode = "mainScreen"
+
+def landingPageKeyPressed(event, data):
     pass
 
-def homeScreenKeyPressed(event, data):
-    if (event.keysym == "i"):
-        data.mode = "instructions"
-    elif (event.keysym == "m"):
-        data.mode = "mainLoop"
+def ballMovement(data):
+    data.dwightX += data.speedX
+    data.dwightY += data.speedY 
+       
+    # Bounce Feature
+    if data.dwightX >= data.width:
+        data.speedX = -abs(data.speedX)
+    elif data.dwightX <= 0:
+        data.speedX = abs(data.speedX)
+    elif data.dwightY <= 0:
+        data.speedY = abs(data.speedY)
+    elif data.dwightY >= data.height:
+        data.speedY = -abs(data.speedY)
 
-def homeScreenTimerFired(data):
-    pass
+def landingPageTimerFired(data):
+    ballMovement(data)
 
-def homeScreenRedrawAll(canvas, data):
+def landingPageRedrawAll(canvas, data):
+    # background
+    canvas.create_rectangle(0,0,data.width, data.height,fill="purple", width=0)
+    
+    # title
+    canvas.create_rectangle(data.width/5,data.height/10,data.width*.8,data.height*.4,fill="red")
+    canvas.create_text(data.width/3, data.height*.16, text="BE an", font="Arial 20", anchor="e", fill="white") 
+    canvas.create_text(data.width*.24, data.height*.24, text="EMERGING", font="Arial 30 bold", anchor="w", fill="lime") 
+    canvas.create_text(data.width*.53, data.height*.24, text="Leader", font="Arial 30", anchor="w", fill="white")
+    tagline = "All aboard the leadership ride and learn something about yourself!"
+    canvas.create_text(data.width/2, data.height/3, text=tagline, font="Arial 12 italic", fill="cyan")
+    
+    # start button
+    canvas.create_rectangle(data.width*.4, data.height*.6, data.width*.6, data.height*.7, fill="lime")
+    canvas.create_text(data.width/2, data.height*.65, text="Start", fill="white")
+    
+    # bouncing dwight
+    canvas.create_image(data.dwightX, data.dwightY, image=data.preparedImages[1])
+                       
+    
+    # canvas.create_image(data.width/4, data.height*.7, image=data.preparedImages[0])
+    
     homeText = '''
     Welcome to Eric's 112 TP homescreen!
     It will be a create your own adventure interactive game.
@@ -72,37 +123,37 @@ def homeScreenRedrawAll(canvas, data):
     summarized, and analyzed based on organizational behavior theory as well as 
     learn about your strengths, weaknesses as a leader and what you can do.
     
-    Press "i" for general instructions!
-    Press "m" for the main loop!
-    Use spacebar to navigate through the adventure throughout!
     '''
-    canvas.create_text(data.width//2, data.height//2, text=homeText,font="Arial 12")
+    # canvas.create_text(data.width/2, data.height*.75, text=homeText,font="Arial 12", fill="white")
 
 ####################################
-# instructions mode
+# mainScreen mode
 ####################################
 
-def instructionsMousePressed(event, data):
-    pass
-
-def instructionsKeyPressed(event, data):
-    if (event.keysym == "b"):
-        data.mode = "homeScreen"
-    elif (event.keysym == "m"):
+def mainScreenMousePressed(event, data):
+    if ((data.width*.15 <= event.x <= data.width/2) and 
+        (data.height*.3 <= event.y <= data.height*.6)):
         data.mode = "mainLoop"
 
-def instructionsTimerFired(data):
+def mainScreenKeyPressed(event, data):
     pass
 
-def instructionsRedrawAll(canvas, data):
-    helpText = '''
-    Welcome to the future of the general instructions page!
+def mainScreenTimerFired(data):
+    pass
+
+def mainScreenRedrawAll(canvas, data):
+    # background
+    canvas.create_rectangle(0,0,data.width,data.height,fill="purple")
     
-    Press "b" to return to home screen
-    Press "m" for the main loop!
-    Use spacebar to navigate through the adventure throughout!
-    '''
-    canvas.create_text(data.width//2, data.height//2, text=helpText)
+    # story 1
+    canvas.create_text(data.width/2, data.height/5, text="Choose a story", fill="white", font="Arial 30")
+    canvas.create_image(data.width*.3, data.height/2,image=data.preparedImages[0])
+    canvas.create_text(data.width*.3, data.height*.72, text="All aboard the leaderSHIP!", fill="white", font="Arial 15")
+    
+    # (future) story 2
+    canvas.create_rectangle(data.width*.6, data.height/3, data.width*.85, data.height*.65,fill="red")
+    canvas.create_text(data.width*.72, data.height*.72, text="TBD", fill="white", font="Arial 20")
+    
 
 ####################################
 # mainLoop mode
@@ -115,9 +166,7 @@ def mainLoopMousePressed(event, data):
     pass
 
 def mainLoopKeyPressed(event, data):
-    if (event.keysym == 'b'):
-        data.mode = "homeScreen"
-    elif (event.keysym == 'i'):
+    if (event.keysym == 'i'):
         data.mode = "instructions"
     elif (event.keysym == "o"):
         data.mode = "othello"
@@ -162,8 +211,6 @@ def balloonGameMousePressed(event, data):
 def balloonGameKeyPressed(event, data):
     if (event.keysym == 'i'):
         data.mode = "instructions"
-    elif (event.keysym == 'm'):
-        data.mode = "mainLoop"
 
 def balloonGameTimerFired(data):
     pass
@@ -174,8 +221,6 @@ def balloonGameRedrawAll(canvas, data):
     It's based on the Balloon Analog Risk Test (BART), a behavioral test 
     of risk assessment (Lejuez et al., 2002).
     
-    Press "i" for general instructions!
-    Press "m" for the main loop! 
     '''
     canvas.create_text(data.width//2, data.height//2, text=moreText)
 
