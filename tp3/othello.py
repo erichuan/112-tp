@@ -1,5 +1,7 @@
 '''
-General animation framework taken from 112 course notes
+General animation framework taken from 112 course notes:
+https://www.cs.cmu.edu/~112/notes/notes-animations-part2.html
+
 General framework for AI referenced from game AI slides (Sarah, Ria) and framework
 here: http://dhconnelly.com/paip-python/docs/paip/othello.html
 '''

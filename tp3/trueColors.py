@@ -1,5 +1,6 @@
 '''
-General animation framework taken from 112 course notes
+General animation framework taken from 112 course notes:
+https://www.cs.cmu.edu/~112/notes/notes-animations-part2.html
 '''
 from tkinter import *
 import random, os
@@ -319,6 +320,7 @@ def trueColorsRedrawAll(canvas, data):
         
         drawChoices(canvas, data)
         
+        canvas.create_text(data.width/2, data.height*.85, text="Click the box with the descriptions that MOST resonates with you", fill="black")
         canvas.create_text(data.width/2, data.height*.95, text="Hit 'm' to go back", fill="black")
     
     # draw results

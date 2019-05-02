@@ -1,5 +1,7 @@
 '''
-General animation framework taken from animation demo notes
+General animation framework taken from animation demo notes:
+https://www.cs.cmu.edu/~112/notes/notes-animations-part2.html
+
 '''
 from tkinter import *
 import random
