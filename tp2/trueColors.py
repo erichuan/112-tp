@@ -125,7 +125,6 @@ def trueColorsInit(data):
     data.choice2 = Choice(190, 175, 260, 300)
     data.choice3 = Choice(280, 175, 360, 300)
     data.choice4 = Choice(380, 175, 460, 300)
-    data.tmpLst = []
 
 def loadPresidentImages(data):
     data.presidents = ["andy", "cohon", "farnam", "subra"]
@@ -150,11 +149,6 @@ class Choice(object):
         midpt1 = (self.right-self.left)/2
         midpt2 = (self.bottom-self.top)/2
         canvas.create_text(self.left+midpt1, self.top+midpt2,text=self.text, font="Arial 12")
-    
-    def isClicked(self, x, y):
-        self.x = x
-        self.y = y
-        return (self.left <= x <= self.right) and (self.top <= y <= self.bottom)
 
 def drawChoices(canvas, data):
     data.choice1.drawBoxes(canvas, None)
@@ -170,27 +164,7 @@ def drawChoices(canvas, data):
     data.choice4.drawText(canvas, data.trueColors[data.tc][3])
 
 def trueColorsMousePressed(event, data):
-    if data.choice1.isClicked(event.x, event.y):
-        data.tmpLst.append(0)
-    elif data.choice2.isClicked(event.x, event.y):
-        data.tmpLst.append(1)
-    elif data.choice3.isClicked(event.x, event.y):
-        data.tmpLst.append(2)
-    elif data.choice4.isClicked(event.x, event.y):
-        data.tmpLst.append(3)
-    
-    num = 4
-    for item in data.tmpLst:
-        data.results[data.tc][item] = num
-        num -= 1
-    
-    num = 4
-    
-    if ((None not in data.results[data.tc]) and (data.tc < len(data.trueColors))):
-        data.tc += 1
-        
-    
-    print(data.results)
+    pass
 
 def trueColorsKeyPressed(event, data):
     if event.keysym == "m":
@@ -217,19 +191,19 @@ def trueColorsRedrawAll(canvas, data):
 #         canvas.delete(ALL)
 #         canvas.create_rectangle(0, 0, data.width, data.height,
 #                                 fill='white', width=0)
-#         redrawAll(canvas, data)
+#         trueColorsRedrawAll(canvas, data)
 #         canvas.update()    
 # 
 #     def mousePressedWrapper(event, canvas, data):
-#         mousePressed(event, data)
+#         trueColorsMousePressed(event, data)
 #         redrawAllWrapper(canvas, data)
 # 
 #     def keyPressedWrapper(event, canvas, data):
-#         keyPressed(event, data)
+#         trueColorsKeyPressed(event, data)
 #         redrawAllWrapper(canvas, data)
 # 
 #     def timerFiredWrapper(canvas, data):
-#         timerFired(data)
+#         trueColorsTimerFired(data)
 #         redrawAllWrapper(canvas, data)
 #         # pause, then call timerFired again
 #         canvas.after(data.timerDelay, timerFiredWrapper, canvas, data)
@@ -241,7 +215,7 @@ def trueColorsRedrawAll(canvas, data):
 #     data.timerDelay = 100 # milliseconds
 #     root = Tk()
 #     root.resizable(width=False, height=False) # prevents resizing window
-#     init(data)
+#     trueColorsInit(data)
 #     # create the root and the canvas
 #     canvas = Canvas(root, width=data.width, height=data.height)
 #     canvas.configure(bd=0, highlightthickness=0)
